@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using bcar.Socket;
 using bcar.wxpay;
@@ -74,9 +75,34 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("CorpPay")]
-        public CorpPayResult CorpPay(int num)
+        public async Task<string> CorpPayAsync(int num)
         {
-            
+            var openid = "";// HttpContext.Session.GetString("openid");
+            if (openid != null)
+            {
+                //string url = "http://paysdk.weixin.qq.com/example/JsApiPayPage.aspx?openid=" + openid + "&total_fee=" + total_fee;
+                //Response.Redirect(url);
+                JsApiPay jsApiPay = new JsApiPay(this);
+                jsApiPay.openid = openid;
+                jsApiPay.total_fee = num;// int.Parse(total_fee);
+
+                //JSAPI支付预处理
+                try
+                {
+                    WxPayData unifiedOrderResult = jsApiPay.GetCompanycParameters();
+                    
+                    //在页面上显示订单信息
+                    var info = unifiedOrderResult.ToPrintStr();
+                    System.Net.Http.HttpClient http = new System.Net.Http.HttpClient();
+                    HttpContent hc =new StringContent(unifiedOrderResult.ToXml());
+                    var messageTask =await http.PostAsync("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", hc);
+                    return await messageTask.Content.ReadAsStringAsync();
+                }
+                catch (Exception ex)
+                {
+                    return "下单失败";
+                }
+            }
             return null;
         }
 

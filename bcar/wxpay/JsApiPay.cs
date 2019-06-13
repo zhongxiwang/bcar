@@ -201,21 +201,24 @@ namespace WxPayAPI
             return parameters;
         }
 
-        public string GetCompanycParameters()
+        public WxPayData GetCompanycParameters()
         {
 
             WxPayData jsApiParam = new WxPayData();
-            jsApiParam.SetValue("mch_appid", unifiedOrderResult.GetValue("appid"));
-            jsApiParam.SetValue("mchid", unifiedOrderResult.GetValue(""));
-            jsApiParam.SetValue("nonceStr", WxPayApi.GenerateNonceStr());
-            jsApiParam.SetValue("package", "prepay_id=" + unifiedOrderResult.GetValue("prepay_id"));
+            jsApiParam.SetValue("mch_appid", WxPayConfig.GetConfig().GetAppID());
+            jsApiParam.SetValue("mchid", WxPayConfig.GetConfig().GetMchID());
+            jsApiParam.SetValue("nonce_str", WxPayApi.GenerateNonceStr());
+            jsApiParam.SetValue("partner_trade_no", WxPayApi.GenerateNonceStr());
             jsApiParam.SetValue("signType", "MD5");
-            jsApiParam.SetValue("paySign", jsApiParam.MakeSign());
+            jsApiParam.SetValue("sign", jsApiParam.MakeSign());
 
-            string parameters = jsApiParam.ToJson();
+            jsApiParam.SetValue("check_name", "NO_CHECK");
+            jsApiParam.SetValue("desc", "提现");
+            jsApiParam.SetValue("spbill_create_ip", "39.96.69.52");
+            jsApiParam.SetValue("openid", openid);
+            jsApiParam.SetValue("amount", total_fee);
 
-            Log.Debug(this.GetType().ToString(), "Get jsApiParam : " + parameters);
-            return parameters;
+            return jsApiParam;
         }
 
         /**
