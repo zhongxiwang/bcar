@@ -1,0 +1,555 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>百变出行</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link href="../sui/css/sm.min.css" rel="stylesheet" />
+    <link href="../sui/css/sm-extend.css" rel="stylesheet" />
+    <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <style>
+        .round_icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .box {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            z-index: 9999;
+            height: 100%;
+            background-color: rgba(128,128,128,0.5);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function changeFrameHeight() {
+            var ifm = document.getElementById("mapid");
+            ifm.height = document.documentElement.clientHeight;
+        }
+    </script>
+    <div id="orderinfo">
+        <div class="page">
+            <div class="content">
+                <div class="buttons-tab">
+                    <a href="#" class="tab-link button open-panel" data-panel='#panel-left-demo'><span class="icon icon-me"></span></a>
+                    <a href="#tab4" onclick="setriderType(4)" class="tab-link active button">快车</a>
+                    <a href="#tab1" onclick="setriderType(1)" class="tab-link button">顺风车</a>
+                    <a href="#tab2" onclick="setriderType(2)" class="tab-link button">专车</a>
+                    <a href="#tab3" onclick="setriderType(3)" class="tab-link button">速运</a>
+                </div>
+                <div class="content-block" style="background-color:white;padding:0px;">
+                    <div class="tabs">
+                        <!--顺风车-->
+                        <div id="tab1" class="tab ">
+                            <div class="content-block">
+                                <div class="list-block">
+                                    <ul>
+                                        <!-- Text inputs -->
+                                        <li>
+                                            <div class="item-content">
+                                                <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                                                <div class="item-inner">
+                                                    <div class="item-title label">乘车人</div>
+                                                    <div class="item-input">
+                                                        <input type="text"  placeholder="手机号码" v-model="rider" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="item-content">
+
+                                                <div class="item-inner " onclick="inputLoction(1,this)">
+                                                    <div class="item-title label">出发点</div>
+                                                    <div class="item-input">
+                                                        <!--<input type="text" id="sel" placeholder="出发点" v-model="startingPoint" onfocus="inputLoction(1,this)" />-->
+                                                        <div>{{startingPoint}}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="item-content">
+                                                <div class="item-inner " onclick="inputLoction(2,this)">
+                                                    <div class="item-title label">目的地</div>
+                                                    <div class="item-input">
+                                                        <div>{{endingPoint}}</div>
+                                                        <!--<input type="text" id="sel" placeholder="出发点" v-model="endingPoint" onfocus="inputLoction(2,this)" />-->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="item-content">
+
+                                                <div class="item-inner ">
+                                                    <div class="item-title label">出发时间</div>
+                                                    <div class="item-input">
+                                                        <input type="text" id='datetime-picker' />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <div class="item-content">
+
+                                                <div class="item-inner ">
+                                                    <div class="item-title label">人数</div>
+                                                    <div class="item-input">
+                                                        <select id="sel" v-model="personNum">
+                                                            <option>1</option>
+                                                            <option>2</option>
+                                                            <option>3</option>
+                                                            <option>4</option>
+                                                            <option>5</option>
+                                                            <option>6</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </li>
+                                        <li>
+                                            <div class="item-content">
+
+                                                <div class="item-inner ">
+
+                                                    <div class="item-input">
+                                                        <input type="checkbox" id="checkbox" v-model="xy"><a href="xycontent.html" class="alert-text" external>约车协议</a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </li>
+                                    </ul>
+
+                                </div>
+
+                                <div class="content-block">
+                                    <div class="row" v-if="xy">
+                                        <div>
+                                            <span style="color:red;">预估价格:</span>{{price}}￥
+                                        </div>
+                                        <div><a href="#" class="button button-big button-fill button-success" onclick="submit()">提交</a></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!--快车-->
+                        <div id="tab4" class="tab active " style="width:100%;height:100%;">
+                            <iframe id="mapid" frameborder="no" border="0" marginwidth="0" allowtransparency="yes" marginheight="0" scrolling="no" src="baidu.html" width="100%" onload="changeFrameHeight()"></iframe>
+
+                            <!--<div class="content-block">
+
+                            </div>-->
+                        </div>
+                        <!--专车-->
+                        <div id="tab2" class="tab">
+                            <div class="list-block">
+                                <ul>
+                                    <!-- Text inputs -->
+                                    <li>
+                                        <div class="item-content">
+                                            <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                                            <div class="item-inner">
+                                                <div class="item-title label">乘车人</div>
+                                                <div class="item-input">
+                                                    <input type="text" placeholder="手机号码" v-model="rider" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner " onclick="inputLoction(1,this)">
+                                                <div class="item-title label">出发点</div>
+                                                <div class="item-input">
+                                                    <div>{{startingPoint}}</div>
+                                                    <!--<input type="text" id="sel" placeholder="出发点" v-model="startingPoint" onfocus="inputLoction(1,this)" />-->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner  " onclick="inputLoction(2,this)">
+                                                <div class="item-title label">目的地</div>
+                                                <div class="item-input">
+                                                    <div>{{endingPoint}}</div>
+                                                    <!--<input type="text"  placeholder="目的地" v-model="endingPoint" onfocus="inputLoction(2,this)" />-->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner ">
+                                                <div class="item-title label">出发时间</div>
+                                                <div class="item-input">
+                                                    <input type="text" id='datetime-picker2' />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner ">
+                                                <div class="item-title label">人数</div>
+                                                <div class="item-input">
+                                                    <select id="sel" v-model="personNum">
+                                                        <option>1</option>
+                                                        <option>2</option>
+                                                        <option>3</option>
+                                                        <option>4</option>
+                                                        <option>5</option>
+                                                        <option>6</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner ">
+                                                <div class="item-input">
+                                                    <input type="checkbox" id="checkbox" v-model="xy"><a href="xycontent.html" class="alert-text" external>约车协议</a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+                                            <div class="item-inner " style="margin:0 auto;width:240px;">
+                                                <div class="col-50" onclick="setCarT('One')"><div style=" margin:0 auto;width:100px;"><img width="120" src="../image/car5.jpg" /><br /><input type="radio" value="One" v-model="carT" /> 舒适5座 </div></div>
+                                                <div class="col-50" onclick="setCarT('Two')"><div style="margin:0 auto;width:100px;"><img width="120" src="../image/car7.png" /><br /><input type="radio" value="Two" v-model="carT" /> 商务7座 </div></div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="content-block">
+                                <div class="row" v-if="xy">
+                                    <div>
+                                        <span style="color:red;">预估价格:</span>{{price}}￥
+                                    </div>
+                                    <div><a href="#" onclick="submit()" class="button button-big button-fill button-success">提交</a></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--速运-->
+
+                        <div id="tab3" class="tab">
+                            <div class="list-block">
+                                <ul>
+                                    <!-- Text inputs -->
+                                    <li>
+                                        <div class="item-content">
+                                            <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                                            <div class="item-inner">
+                                                <div class="item-title label">乘车人</div>
+                                                <div class="item-input">
+                                                    <input type="text" placeholder="手机号码" v-model="rider" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner " onclick="inputLoction(1,this)">
+                                                <div class="item-title label">出发点</div>
+                                                <div class="item-input">
+                                                    {{startingPoint}}
+                                                    <!--<input type="text" id="sel" placeholder="出发点" v-model="startingPoint" onfocus="inputLoction(1,this)" />-->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner " onclick="inputLoction(2,this)">
+                                                <div class="item-title label">目的地</div>
+                                                <div class="item-input">
+                                                    {{endingPoint}}
+                                                    <!--<input type="text" placeholder="目的地" v-model="endingPoint" onfocus="inputLoction(2,this)" />-->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner ">
+                                                <div class="item-title label">出发时间</div>
+                                                <div class="item-input">
+                                                    <input type="text" id='datetime-picker3' />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner ">
+                                                <div class="item-title label">人数</div>
+                                                <div class="item-input">
+                                                    <select id="sel" v-model="personNum">
+                                                        <option>1</option>
+                                                        <option>2</option>
+                                                        <option>3</option>
+                                                        <option>4</option>
+                                                        <option>5</option>
+                                                        <option>6</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+
+
+                                    <li>
+                                        <div class="item-content">
+                                            <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                                            <div class="item-inner">
+                                                <div class="item-title label">收件人称呼</div>
+                                                <div class="item-input">
+                                                    <input type="text" placeholder="Your name" v-model="addresseeCall" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+                                            <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                                            <div class="item-inner">
+                                                <div class="item-title label">收件人电话</div>
+                                                <div class="item-input">
+                                                    <input type="text" placeholder="Your mobile" v-model="addresseeMobile" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
+
+                                            <div class="item-inner ">
+                                                <div class="item-input">
+                                                    <input type="checkbox" id="checkbox" v-model="xy"><a href="xycontent.html" class="alert-text" external>约车协议</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="content-block">
+                                <div class="row" v-if="xy">
+                                    <div>
+                                        <span style="color:red;">预估价格:</span>{{price}}￥
+                                    </div>
+                                    <div><a href="#" onclick="submit()" class="button button-big button-fill button-success">提交</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- html of right-->
+        <div class="panel-overlay"></div>
+        <!-- Left Panel with Reveal effect -->
+        <div style="background-color:white;box-shadow:rgba(0,0,0,0.5) 1px 1px ;" class="panel panel-left panel-reveal theme-dark" id='panel-left-demo'>
+            <div class="content-block">
+                <div style="">
+                    <img style="margin:0 auto;" width="120" v-bind:src="headimgurl" class="round_icon" alt=""><br />
+                    <div style="margin:0 auto;margin-left: 80px;">{{nickname}}</div>
+                    <!--<div style="margin:0 auto;width:160px;">15170578192</div>-->
+                </div>
+                <p><a href="myTrip.html" class="close-panel"><i class="fa fa-wpforms" aria-hidden="true"></i> 我的行程</a></p>
+                <p><a href="earnMoney.html" class="close-panel"><i class="fa fa-share" aria-hidden="true"></i> 分享赚钱</a></p>
+                <!--<p><a href="#" class="close-panel"><i class="fa fa-car" aria-hidden="true"></i> 约 车</a></p>-->
+                <!--<p><a href="#" class="close-panel">关闭</a></p>-->
+            </div>
+        </div>
+        <!--d-->
+    </div>
+    <script src="../sui/js/zepto.js"></script>
+    <script src="../sui/js/sm.min.js"></script>
+    <script src="../sui/js/sm-extend.min.js"></script>
+    <script src="../js/uilt.js"></script>
+    <script src="../vue/vue.js"></script>
+
+    <script>
+        $.config = {
+            //autoInit: true,
+            router: true
+        }
+        var searchResult = {};
+        var dataset = {
+            rider: "",
+            startingPoint: "",
+            endingPoint: "",
+            startDate: "",
+            personNum: 1,
+            xy: true,
+            price: 0,
+            carT: "One",
+            riderType: 4,
+            addresseeCall: "",
+            addresseeMobile: "",
+            headimgurl: "",
+            nickname: null,
+            openid: null,
+            routeid: 0
+        };
+        var qrscene = "";
+        window.onload = function () {
+
+
+            var code = urlTools.getUrlParam("code");
+
+            var result = getCookie("openid");
+
+            if (isEmptOrNull(code) && isEmptOrNull(result)) {
+                alert("获取用户数据失败，请重新打开。");
+                return;
+            }
+            $.ajax({
+                url: "/api/Token/webtoken?code=" + code + "&openid=" + result,
+                type: "GET",
+                async: true,
+                success: function (data) {
+                    var json = JSON.parse(data);
+                    userwxinfo.headimgurl = json["headimgurl"];
+                    userwxinfo.username = json["nickname"];
+                    userwxinfo.wxCount = json["openid"];
+                    userwxinfo.recommender = json["qr_scene_str"];
+                    uilt_glob_openid = userwxinfo.wxCount;
+                    setCookie("openid", json["openid"], "s7000");
+                    dataset.headimgurl = userwxinfo.headimgurl;
+                    dataset.nickname = userwxinfo.username;
+                    dataset.openid = userwxinfo.wxCount;
+                    qrscene = userwxinfo.recommender;
+                }
+            });
+            $.init();
+        }
+
+        function setriderType(n) {
+            dataset.riderType = n;
+            dataset.price = 0;
+            dataset.endingPoint = "";
+            dataset.startingPoint = "";
+        }
+
+
+        var carpooling = new Vue({
+            el: "#orderinfo",
+            data: dataset
+        });
+        function setCarT(n) { dataset.carT = n; }
+
+        function inputLoction(n, obj) {
+            var lj = "search.html";
+            if (n == 2) {
+                if (dataset.startingPoint == "" || dataset.startingPoint == undefined || dataset.startingPoint == null) {
+                    $(obj).blur();
+                    alert("请先填上车地址");
+                    return;
+                }
+                lj += "?loc=" + dataset.startingPoint;
+            }
+            var div = document.createElement("div");
+            div.className = "box";
+            div.id = "tmpid";
+            //document.getElementById("test").appendChild(div);
+            document.body.appendChild(div);
+            div.innerHTML += '<iframe height="' + document.documentElement.clientHeight + '" id="mapid" src="' + lj + '" frameborder="no" border="0" marginwidth="0" allowtransparency="yes" marginheight="0" scrolling="no"  width="100%" ></iframe>';
+        }
+        function searchWinHide() {
+            var tmpid = document.getElementById("tmpid");
+            document.body.removeChild(tmpid);
+        }
+
+        function fun(f) {
+            try {
+                f();
+            } catch (e) {
+                return null;
+            }
+        }
+        fun(function () {
+            $("#datetime-picker2").datetimePicker();
+        });
+        fun(function () {
+            $("#datetime-picker3").datetimePicker();
+        });
+
+        fun(function () {
+            $("#datetime-picker").datetimePicker();
+        });
+        var orderId = -1;
+        function submit() {
+            var datetimeid = null;
+            switch (dataset.riderType) {
+                case 1: datetimeid = "datetime-picker"; break;
+                case 2: datetimeid = "datetime-picker2"; break;
+                case 3: datetimeid = "datetime-picker3"; break;
+                case 4: dataset.startDate = DateFormat();
+            }
+            if (datetimeid != null) dataset.startDate = $("#" + datetimeid).val();
+            $.ajax({
+                url: "/api/orders/submitorderinfo",
+                data: JSON.stringify(dataset),
+                type: "POST",
+                async: false,
+                contentType: "application/json",
+                success: function (data) {
+                    if (data.code == 1) {
+                        orderId = data.data;
+                        alert("创建订单完成,等待司机接单.可以再您的行程中查看订单。");
+                    } else {
+                        alert(data.msg);
+                    }
+                       
+                }
+            });
+        }
+
+        function changeFrameHeight() {
+            var ifm = document.getElementById("mapid");
+            ifm.height = document.documentElement.clientHeight;
+        }
+
+        
+    </script>
+</body>
+</html>

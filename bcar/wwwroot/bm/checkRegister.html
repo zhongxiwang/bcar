@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../layui/css/layui.css" rel="stylesheet" />
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-xs" lay-event="show">查看</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        {{# if(d.driverstate ==0) { }}
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="sh">审核通过</a>
+        {{#  }else{ }}
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="cxsh">撤销审核</a>
+        {{# } }}
+    </script>
+</head>
+<body>
+    <table lay-filter="driver"  class="layui-hide" id="driver"></table>
+    <script>
+        layui.use('table', function () {
+            var table = layui.table;
+
+            table.render({
+                elem: '#driver'
+                , url: '/api/driverinfo'
+                , cols: [[
+                      { field: 'userid', title: 'ID', sort: true }
+                    , { field: 'username',title: '用户名' }
+                    , { field: 'usercall', title: '称呼', sort: true }
+                    , { field: 'carcard',  title: '车牌号' }
+                    , { field: 'carType', title: '车子类型', sort: true }
+                    , { field: 'seatNum', title: '座位数' }
+                    , { field: 'carColor',  title: '车身颜色' }
+                    , { field: 'moblie', title: '手机号码', sort: true }
+                    , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 250 }
+                ]]
+                , page: true
+            });
+            table.on('tool(driver)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'detail') {
+                    layer.msg('ID：' + data.id + ' 的查看操作');
+                } else if (obj.event === 'del') {
+                    layer.confirm('真的删除行么', function (index) {
+                        obj.del();
+                        $.ajax({
+                            url: "/api/driverinfo/" + data.userid,
+                            type: "DELETE",
+                            success: function (data) {
+                                layer.alert('成功删除');
+                            }
+                        })
+                        layer.close(index);
+                    });
+                } else if (obj.event === 'edit') {
+                    window.open("/diriver/register.html?id=" + data.userid);
+                } else if (obj.event === 'show') {
+                    window.open("/diriver/register.html?id=" + data.userid + "&r=1");
+                } else if (obj.event === 'cxsh') {
+                    shstate(0, data.userid);
+
+                } else if (obj.event === 'sh') {
+                    shstate(1, data.userid);
+                }
+
+
+                //标注选中样式
+                obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            });
+            
+        });
+
+        function shstate(n,id) {
+            var dt = {};
+            dt.driverstate = n;
+            $.ajax({
+                url: "/api/driverinfo/" + id,
+                type: "PUT",
+                data: JSON.stringify(dt),
+                contentType: "application/json",
+                success: function (data) {
+                    layer.alert("信息更新成功。", {
+                        title: '更新成功',
+                        offset: 'tc'
+                    });
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

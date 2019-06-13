@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="../vue/vue.js"></script>
+    <script src="../js/uilt.js"></script>
+    <link href="../sui/css/sm.min.css" rel="stylesheet" />
+    <link href="../sui/css/sm-extend.css" rel="stylesheet" />
+    <style>
+        .headers {
+            background-image: url("../image/bg.png");
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-group" id="dataset">
+
+        <div class="page page-current" id='router'>
+            <header class="bar bar-nav">
+                <a class="button button-link button-nav pull-left back" href="Share.html">
+                    <span class="icon icon-left"></span>
+                    返回
+                </a>
+                <h1 class='title'>分享赚钱</h1>
+            </header>
+
+            <div class="content" style="margin:0;">
+                <div class="list-block" style="margin:0;">
+                    <div style="height:200px;" class="headers">
+                        <div style="margin:0 auto;width:240px;">
+                            <br />
+                            <br /><br />
+                            <div style=" color:white;font-size:24px;">账号金额:{{userbill}}</div>
+
+
+                        </div>
+                        </div>
+                    <ul>
+                        <li class="item-content item-link">
+                            <a href="#tgsy" style="width:95%;height:50px;">
+                                <div class="item-media"><i class="icon icon-f7"></i></div>
+                                <div class="item-inner">
+                                    <div class="item-title">
+                                        推广收益
+                                    </div>
+                                    <div class="item-after"> </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="item-content item-link" >
+                            <a href="#fans" style="width:95%;">
+                                <div class="item-media"><i class="icon icon-f7"></i></div>
+                                <div class="item-inner">
+                                    <div class="item-title">
+                                        我的粉丝
+                                    </div>
+                                    <div class="item-after"> </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="item-content item-link" onclick="qrcode()">
+                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                            <div class="item-inner">
+                                <div class="item-title"><a href="#">我的二维码</a></div>
+                                <div class="item-after"> </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-link" onclick="applyProxy()">
+                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                            <div class="item-inner">
+                                <div class="item-title"><a href="#">申请成为代理商</a></div>
+                                <div class="item-after"> </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-link" onclick="pay()" >
+                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                            <div class="item-inner">
+                                <div class="item-title"><a href="#">充值</a></div>
+                                <div class="item-after"> </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="page" id="fans">
+            <header class="bar bar-nav">
+                <a class="button button-link button-nav pull-left back" href="earnMoney.html">
+                    <span class="icon icon-left"></span>
+                    返回
+                </a>
+                <h1 class="title">我的粉丝</h1>
+            </header>
+            <div class="content" id="list">
+                <div class="content-block-title">共有粉丝:{{len}}</div>
+                <div class="list-block" v-if="ishow">
+                    <ul v-for="key in list">
+                        <li class="item-content">
+                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                            <div class="item-inner">
+                                <div class="item-title">{{key.username}}</div>
+                                <div class="item-after">{{key.formatTime}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <div class="page" id="tgsy">
+            <header class="bar bar-nav">
+                <a class="button button-link button-nav pull-left back" href="earnMoney.html">
+                    <span class="icon icon-left"></span>
+                    返回
+                </a>
+                <h1 class="title">推广收益</h1>
+            </header>
+            <div class="list-block">
+                <div class="content-block-title" style="margin-top:80px;">可提现金额:{{userbill}}</div>
+                <ul>
+                    <li class="item-content item-link">
+                        <div class="item-media"><i class="icon icon-f7"></i></div>
+                        <div class="item-inner">
+                            <div class="item-title"><a href="#tgsyold">推广收益记录</a></div>
+                            <div class="item-after"> </div>
+                        </div>
+                    </li>
+                    <li class="item-content item-link">
+                        <div class="item-media"><i class="icon icon-f7"></i></div>
+                        <div class="item-inner">
+                            <div class="item-title"><a href="#txold">提现历史</a></div>
+                            <div class="item-after"> </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="item-content">
+                            <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                            <div class="item-inner">
+                                <div class="item-title label">本次提现金额</div>
+                                <div class="item-input">
+                                    <input type="text" placeholder="提现金额" />
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <a href="#" class="button button-big button-fill button-success">提现</a>
+        </div>
+        <div class="page" id="txold">
+            <header class="bar bar-nav">
+                <a class="button button-link button-nav pull-left back" href="earnMoney.html">
+                    <span class="icon icon-left"></span>
+                    返回
+                </a>
+                <h1 class="title">提现历史</h1>
+            </header>
+            <div class="content" id="list">
+                <div class="content-block-title">共提现次数:{{txlen}}</div>
+                <div class="list-block">
+                    <ul v-for="key in txlist">
+                        <li class="item-content">
+                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                            <div class="item-inner">
+                                <div class="item-title">{{key.username}} {{key.formatTime}}</div>
+                                <div class="item-after">{{key.price}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <div class="page" id="tgsyold">
+            <header class="bar bar-nav">
+                <a class="button button-link button-nav pull-left back" href="earnMoney.html">
+                    <span class="icon icon-left"></span>
+                    返回
+                </a>
+                <h1 class="title">收益历史</h1>
+            </header>
+            <div class="content" id="list">
+                <div class="content-block-title">共提取到收益:{{sylen}}</div>
+                <div class="list-block" >
+                    <ul v-for="key in sylist">
+                        <li class="item-content">
+                            <div class="item-media"><i class="icon icon-f7"></i></div>
+                            <div class="item-inner">
+                                <div class="item-title">{{key.username}} {{key.formatTime}}</div>
+                                <div class="item-after">{{key.price}}</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+        <script src="../sui/js/zepto.js"></script>
+        <script src="../sui/js/sm.min.js"></script>
+        <script src="../sui/js/sm-extend.min.js"></script>
+        <script>
+            var datalist = {};
+            var app = null;
+            (function () {
+
+                if (uilt_glob_openid == null) {
+                    registeruser();
+                    var action = urlTools.getUrlParam("action");
+                    if (action != null) {
+                        switch (action) {
+                            case "qrcode": qrcode();
+                        }
+                    }
+                }
+                $.ajax({
+                    url: "/fans?wxcount=" + uilt_glob_openid,
+                    type: "GET",
+                    async: false,
+                    success: function (data) {
+                        datalist.list = data;
+                        datalist.len = data.length;
+                        datalist.ishow = data.length == 0 ? false : true;
+                    }
+                });
+                $.ajax({
+                    url: "/getsy?wxcount=" + uilt_glob_openid,
+                    type: "GET",
+                    async: false,
+                    success: function (data) {
+                        datalist.sylist = data;
+                        datalist.sylen = data.length;
+                    }
+                });
+                $.ajax({
+                    url: "/gettx?wxcount=" + uilt_glob_openid,
+                    type: "GET",
+                    async: false,
+                    success: function (data) {
+                        datalist.txlist = data;
+                        datalist.txlen = data.length;
+                    }
+                });
+                if (databaseUserinfo == null) getuserinfo();
+                datalist.userbill = databaseUserinfo.bill;
+                app = new Vue({
+                    el: "#dataset",
+                    data: datalist
+                });
+            }());
+            function qrcode() {
+                if (databaseUserinfo.proxy === 0) {
+                    $.confirm('您还不是代理商，将不能提取推广用户的收益，是否成为代理商？', function () {
+                        applyProxy();
+                    });
+                } else {
+                    $.alert('您已经是代理商，将可以永久从您推广用户的收益或支持中提取部分收益。');
+                }
+                $.alert('<img width="160" src="' + databaseUserinfo.qrCode + '" />');
+            }
+            function applyProxy()
+            {
+                if (databaseUserinfo.proxy === 1) {
+                    $.alert("你已经是代理商了，不用重复申请.");
+                } else {
+                    $.ajax({
+                        url: "/proxycost",
+                        success: function (d) {
+                            $.confirm("成为代理商需要支付"+d+"元，请保持账号余额充足，是否继续？", function () {
+                                $.ajax({
+                                    url: "/proxy?wxcount=" + uilt_glob_openid,
+                                    type: "GET",
+                                    success: function (data) {
+                                        $.alert(data);
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+
+            }
+
+            function pay() {
+                $.confirm('<center><b>充值</b></center><br/>请输入金额:<input type="number" id="fee" />', function () {
+                    var doc = document.getElementById("fee").value;
+                    $.ajax({
+                        url: "/api/pay?fee="+doc*100,
+                        type: "GET",
+                        success: function (data) {
+                            WeixinJSBridge.invoke('getBrandWCPayRequest', JSON.parse(data),
+                                function (res) {
+                                    WeixinJSBridge.log(res.err_msg);
+                                    $.alert("充值失败。");
+                                }
+                            );
+                        }
+                    });
+                });
+            }
+        </script>
+</body>
+</html>

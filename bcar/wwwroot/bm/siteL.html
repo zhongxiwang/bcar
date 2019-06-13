@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../layui/css/layui.css" rel="stylesheet" />
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../js/uilt.js"></script>
+    <script src="../vue/vue.js"></script>
+
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        <a class="layui-btn layui-btn-xs" lay-event="show">更新</a>
+    </script>
+</head>
+<body>
+     <div id="ds">
+        <table lay-filter="dataSheet"  class="layui-hide" id="dataSheet"></table>
+        <hr />
+        <div>
+            <button style="margin:5px;" class="layui-btn layui-btn-primary" onclick="CreateData()">添加一个站点</button>
+            <button  style="margin:5px;" class="layui-btn layui-btn-primary" onclick="submit()">提交站点</button>
+            <ul v-for="key in newlist" style="margin:20px;">
+                <li>
+                    站点名称:<input type="text" v-model="key.sitename" /> 到下一站的距离(km)：<input v-model="key.nxdistance" type="text" /> 这条路线的第几个站：<input v-model="key.lindex" type="text" />
+                </li>
+            </ul>
+
+        </div>
+        </div>
+        <script>
+
+            var routeid = null;
+            var newlist = [];
+            $(function () {
+                routeid = urlTools.getUrlParam("id");
+            });
+            function CreateData() {
+                var t = { irouteid: null, sitename: null, nxdistance: null, lindex: null };
+                t.lindex = newlist.length;
+                t.irouteid = routeid;
+                newlist.push(t);
+            }
+            function submit() {
+                
+                for (var i = 0; i < newlist.length; i++) {
+                    if (newlist[i].sitename === null || newlist[i].sitename === "") {
+                        delete newlist[i];
+                        newlist.length--;
+                    }
+                    if (newlist[i].nxdistance == null) newlist[i].nxdistance = 0;
+                }
+                if (newlist.length == 0) alert("请添加站点");
+                $.ajax({
+                    url: "/api/LocationSite",
+                    type: "POST",
+                    data: JSON.stringify(newlist),
+                    contentType:"application/json",
+                    success: function (data) {
+                        if (data == 1) {
+                            layer.alert("添加数据成功。", {
+                                title: '成功',
+                                offset: 'tc'
+                            });
+                        } else {
+                            layer.alert("添加数据失败,请确认数据的正确性。", {
+                                title: '成功',
+                                offset: 'tc'
+                            });
+                        }
+                    }
+                })
+            }
+            new Vue({
+                el: "#ds",
+                data: {
+                    newlist: newlist
+                }
+            });
+            layui.use(['form', 'layedit', 'laydate', 'upload', 'table'], function () {
+                var form = layui.form
+                    , layer = layui.layer
+                    , layedit = layui.layedit
+                    , upload = layui.upload
+                    , table = layui.table;
+                table.render({
+                    elem: '#dataSheet'
+                    , url: '/api/LocationSite?where=where irouteid=' + routeid
+                    , cols: [[
+                        { field: 'id', title: 'ID', sort: true }
+                        , { field: 'irouteid', title: '路线id' }
+                        , { field: 'sitename', title: '站点名称', edit: 'text', sort: true }
+                        , { field: 'nxdistance', edit: 'text', title: '到下一站的距离' }
+                        , { field: 'lindex', title: '当前站点编号', edit: 'text', sort: true }
+                        , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 250 }
+                    ]]
+                    , page: true
+                });
+
+
+                table.on('tool(dataSheet)', function (obj) {
+                    var data = obj.data;
+                    if (obj.event === 'detail') {
+                        layer.msg('ID：' + data.id + ' 的查看操作');
+                    } else if (obj.event === 'del') {
+                        layer.confirm('真的删除行么', function (index) {
+                            obj.del();
+                            $.ajax({
+                                url: "/api/LocationSite/" + data.id,
+                                type: "DELETE",
+                                success: function (data) {
+                                    layer.alert('成功删除');
+                                }
+                            })
+                            layer.close(index);
+                        });
+                    }
+                    else if (obj.event === 'show') {
+                        shstate(data);
+                    }
+                   
+
+
+                    //标注选中样式
+                    obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+                });
+
+            });
+
+            function shstate(data) {
+                var dt = {};
+                dt.sitename = data.sitename;
+                dt.nxdistance = data.nxdistance;
+                dt.lindex = data.lindex;
+                $.ajax({
+                    url: "/api/LocationSite/" + data.id,
+                    type: "PUT",
+                    data: JSON.stringify(dt),
+                    contentType: "application/json",
+                    success: function (data) {
+                        layer.alert("信息更新成功。", {
+                            title: '更新成功',
+                            offset: 'tc'
+                        });
+                    }
+                });
+            }
+
+        </script>
+</body>
+</html>

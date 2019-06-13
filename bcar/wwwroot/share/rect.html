@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script src="../js/jquery-1.11.2.min.js"></script>
+</head>
+<body>
+    <script src="../js/uilt.js"></script>
+    <script>
+        window.onload= function () {
+           
+            var code = urlTools.getUrlParam("code");
+            var result = getCookie("openid");
+
+            if (isEmptOrNull(code) && isEmptOrNull(result)) {
+                alert("获取用户数据失败，请重新打开。");
+                return;
+            }
+            $.ajax({
+                url: "/api/Token/webtoken?code=" + code + "&openid=" + result,
+                type: "GET",
+                async: false,
+                success: function (data) {
+                    var json = JSON.parse(data);
+                    userwxinfo.headimgurl = json["headimgurl"];
+                    userwxinfo.username = json["nickname"];
+                    userwxinfo.wxCount = json["openid"];
+                    userwxinfo.recommender = json["qr_scene_str"];
+                    uilt_glob_openid = userwxinfo.wxCount;
+                    setCookie("openid", json["openid"], "s7000");
+                    $.ajax({
+                        url: "/userisregister",
+                        async: true,
+                        type: "GET",
+                        success: function (data) {
+                            if (data === 0) {
+                                $.ajax({
+                                    url: "/api/Token/ShareQrCode",
+                                    async: true,
+                                    success: function (data) {
+                                        userwxinfo.qrCode = data;
+                                        $.ajax({
+                                            url: "/api/userinfo",
+                                            type: "POST",
+                                            contentType: "application/json-patch+json",
+                                            data: JSON.stringify(userwxinfo),
+                                            success: function (data) {
+                                                setCookie("openid", json["openid"], "s7000");
+                                                window.location.href = "../diriver/register.html";
+                                            }
+
+                                        });
+                                    }
+                                });
+
+                            }
+                            else if (data === 1) {
+                                setCookie("openid", json["openid"], "s7000");
+                                window.location.href = "../diriver/main.html";
+                            } else {
+                                window.location.href = "../diriver/sleep.html";
+                            }
+                        }
+                    });
+                }
+            });
+
+
+        };
+    </script>
+</body>
+</html>

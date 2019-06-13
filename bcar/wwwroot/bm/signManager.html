@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../layui/css/layui.css" rel="stylesheet" />
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../js/uilt.js"></script>
+    <script src="../vue/vue.js"></script>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="update">更新修改</a>
+        <a class="layui-btn layui-btn-xs" lay-event="delete">删除数据</a>
+    </script>
+</head>
+<body>
+
+
+
+    <button onclick="Create()" class="layui-btn" style="margin:15px;" >创建用户</button>
+    <table lay-filter="driver" class="layui-hide" id="driver"></table>
+    <script>
+        var table = null;
+        var layer = null;
+        layui.use(['table','layer'], function () {
+            table = layui.table;
+            layer = layui.layer;
+            table.render({
+                elem: '#driver'
+                , url: '/api/admin'
+                , cols: [[
+                    { field: 'id', title: '用户id'},
+                    { field:'username',title:'用户名',edit:'text'}
+                    , { field: 'email', title: '邮箱', edit: 'text' }
+                    , { field: 'pwd', title: '密码', edit: 'text' }
+                    , { fixed: 'right', title: '操作', toolbar: '#barDemo',width: 180 }
+                ]]
+                ,page:true
+            });
+            table.on('tool(driver)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'update') {
+                    shstate(data);
+                } else if (obj.event === 'delete') {
+                    layer.confirm('确认删除数据？', function (index) {
+                        DeleteUser(data);
+                        obj.del();
+                    });
+                } 
+                //标注选中样式
+                obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            });
+
+        });
+
+        function test() {
+            var data = document.forms["dataset"];
+            
+            
+        }
+
+        function Create() {
+            layer.open({
+                type: 1
+                , title: false //不显示标题栏
+                , closeBtn: false
+                , area: '300px;'
+                , shade: 0.8
+                , id: 'LAY_layuipro' //设定一个id，防止重复弹出
+                , btn: ['提交', '取消']
+                , btnAlign: 'c'
+                , moveType: 1 //拖拽模式，0或者1
+                , content: '<form  name="dataset" style="padding:15px;" ><div class="layui-form-item"><label class="layui-form-label">用户名</label><div class="layui-input-block"><input type="text" name="username" lay-verify="title" autocomplete="off" placeholder="用户名" class="layui-input"></div></div><div class="layui-form-item"><label class="layui-form-label">密码</label><div class="layui-input-block"><input type="password" name="pwd" lay-verify="title" autocomplete="off" placeholder="密码" class="layui-input"></div></div><div class="layui-form-item"><label class="layui-form-label">email</label><div class="layui-input-block"><input type="text" name="email" lay-verify="title" autocomplete="off" placeholder="mail" class="layui-input"></div></div></form>'
+                , yes: function () {
+                    var ds = document.forms.dataset;
+                    var data = {
+                        username: ds.username.value,
+                        pwd: ds.pwd.value,
+                        email: ds.email.value
+                    };
+                    create(data);
+                    layer.closeAll();
+                }
+                , success: function (layero) {
+                   
+                }
+            });
+        }
+
+        function shstate(data) {
+            var dt = data;
+            console.log(data);
+            var datas = { username: data.username, email: data.email, pwd: data.pwd };
+            $.ajax({
+                url: "/api/admin/updateData?id=" + data.id,
+                type: "PUT",
+                data: JSON.stringify(datas),
+                contentType: "application/json",
+                success: function (data) {
+                    if(data)
+                    layer.alert("信息更新成功。", {
+                        title: '更新成功',
+                        offset: 'tc'
+                        });
+                    else layer.alert("信息更新失败。", {
+                        title: '更新失败',
+                        offset: 'tc'
+                    });
+                }
+            });
+        }
+
+        function create(data) {
+            $.ajax({
+                url: "/api/admin",
+                type: "POST",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                success: function (data) {
+                    if (data == 1)
+                        layer.alert("添加用户成功。", {
+                            title: '提交成功',
+                            offset: 'tc'
+                        });
+                    else layer.alert("添加用户失败。", {
+                        title: '添加失败',
+                        offset: 'tc'
+                    });
+                }
+            });
+        }
+
+        function DeleteUser(data)
+        {
+
+                $.ajax({
+                    url: "/api/admin/delete?id=" + data.id,
+                    type: "DELETE",
+                    success: function (data) {
+                        if (data == 1)
+                            layer.alert("删除用户成功。", {
+                                title: '提交成功',
+                                offset: 'tc'
+                            });
+                        else layer.alert("删除用户失败。", {
+                            title: '添加失败',
+                            offset: 'tc'
+                        });
+                    }
+                });
+
+        }
+    </script>
+</body>
+</html>

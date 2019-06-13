@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=s1ColjPno0IlzGjMoi9tBVkxIlyUQ2Kv"></script>
+    <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="../vue/vue.js"></script>
+    <link href="../sui/css/sm.min.css" rel="stylesheet" />
+    <link href="../sui/css/sm-extend.css" rel="stylesheet" />
+    
+    <style>
+
+        .infinite-scroll-preloader {
+            margin-top: -20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-group" id="dataset">
+        <div class="page page-current">
+            <div class=" content">
+                <iframe id="mapid" frameborder="no" border="0" marginwidth="0" allowtransparency="yes" marginheight="0" scrolling="no" src="mainWin.html" width="100%" onload="changeFrameHeight()"></iframe>
+            </div>
+        </div>
+    </div>
+    <script src="../js/webSocket2.js"></script>
+    <script src="../js/uilt.js"></script>
+    <script src="../sui/js/zepto.js"></script>
+    <script src="../sui/js/sm.min.js"></script>
+    <script src="../sui/js/sm-extend.min.js"></script>
+    <script>
+
+        function changeFrameHeight() {
+            var ifm = document.getElementById("mapid");
+            ifm.height = document.documentElement.clientHeight - 20;
+        }
+
+        var locationInfo = null;
+        var driverInfo = {};
+
+        var stopConnetion = null;
+
+        $(function () {
+
+            if (uilt_glob_openid == null) {
+                getWxInfo();
+                if (databaseUserinfo == null) getuserinfo();
+                websocket.WebSocketOpen(userwxinfo.wxCount);
+                stopConnetion = setInterval("getLocation()", 50000);
+                dataset.headimgurl = userwxinfo.headimgurl;
+                dataset.nickname = userwxinfo.username;
+                dataset.openid = userwxinfo.wxCount;
+                qrscene = userwxinfo.recommender;
+            }
+
+            setTimeout(function () {
+                getLocation();
+                $.ajax({
+                    url: "/api/driverinfo/" + databaseUserinfo.id,
+                    success: function (data) {
+                        driverInfo = data;
+                    }
+                });
+
+            }, 2000);
+
+        });
+        /**
+         * 获取位置信息，并上传
+         * */
+        function getLocation() {
+            var geolocation = new BMap.Geolocation();
+            geolocation.getCurrentPosition(function (r) {
+                if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+                    locationInfo = r;
+                    var msg = CreateuploadLocation(r);
+                    websocket.Send(msg);
+                } else {
+                    alert(CurrentPositionErrorList[this.getStatus]);
+                }
+            }, { enableHighAccuracy: true });
+        }
+        /**
+         *
+         * 司机位置上传
+         * @param r 司机位置信息
+         */
+        function CreateuploadLocation(r) {
+            var result = CreateStruct(MessageType.uploadLocation);
+            result.Head.city = r.address.city;
+            result.Head.province = r.address.province;
+            result.Head.latitude = r.latitude;
+            result.Head.longitude = r.longitude;
+            return result;
+        }
+        /**
+         * 创建必须结构体
+         * @param serviceType MessageType
+         */
+        function CreateStruct(serviceType) {
+            var result = websocket.Struct();
+            result.Head.KeyID = databaseUserinfo.id;
+            result.Head.username = databaseUserinfo.username;
+            result.ClientType.Other = serviceType;
+            result.Head.RequestKey = serviceType;
+            return result;
+        }
+
+
+    </script>
+</body>
+</html>

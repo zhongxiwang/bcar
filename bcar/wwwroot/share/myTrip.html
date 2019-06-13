@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="../vue/vue.js"></script>
+    <link href="../sui/css/sm.min.css" rel="stylesheet" />
+    <link href="../sui/css/sm-extend.css" rel="stylesheet" />
+    <style>
+
+        .infinite-scroll-preloader {
+            margin-top: -20px;
+        }
+    </style>
+
+</head>
+<body>
+
+
+
+
+          <div class="page-group"  id="dataset">
+              <div class="page page-current">
+                  <header class="bar bar-nav">
+                      <a class="button button-link button-nav pull-left back" href="Share.html">
+                          <span class="icon icon-left"></span>
+                          返回
+                      </a>
+                      <h1 class='title'>我的行程</h1>
+                  </header>
+                  <br /><br />
+                        <div  onscroll="refresh(this)"  class="content infinite-scroll infinite-scroll-bottom" data-distance="100">
+                            <div v-for="key  in list" class="list-block">
+                                <div class="card demo-card-header-pic">
+                                    <div class="card-content">
+                                        <div class="card-content-inner" style="height: 80px;">
+                                            <i class="fa fa-location-arrow" aria-hidden="true"></i>
+                                            上车位置：{{key.startlocation}} <br />
+                                            <i class="fa fa-location-arrow" style="color:green;" aria-hidden="true"></i>
+                                            下车位置：{{key.endlocation}}
+                                            <br />
+                                            订单类型:{{key.state==1?"顺风车":key.state==2?"专车":key.state==3?"速递":"快车"}}
+                                        </div>
+                                    </div>
+                                    <div class="card-content">
+                                        <div class="card-content-inner">
+                                            <p class="color-gray"><i class="fa fa-calendar-times-o" aria-hidden="true"></i>{{key.createTime}}</p>
+                                            <p>总价钱：{{key.userprice}}￥</p>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="#" class="link" v-on:click="oper(key,this)">{{operButton[key.state+1]}}</a>
+                                        <a href="#info" class="link" v-on:click="currentData(key)">更多</a>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="infinite-scroll-preloader">
+                                <div class="preloader"></div>
+                            </div>
+                        </div>
+                  <!-- 加载提示符 -->
+
+              </div>
+              <div class="page" id="info">
+                  <header class="bar bar-nav">
+                      <a class="button button-link button-nav pull-left back" href="#">
+                          <span class="icon icon-left"></span>
+                          返回
+                      </a>
+                      <h1 class="title">订单详细信息</h1>
+                  </header>
+                  <div class="content">
+                      <div class="content-block-title">基础信息</div>
+                      <div class="list-block">
+                          <ul>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">上车地点</div>
+                                      <div class="item-after">{{infoData.startlocation}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">下车地点</div>
+                                      <div class="item-after">{{infoData.endlocation}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">乘车时间</div>
+                                      <div class="item-after">{{infoData.createTime}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">费用</div>
+                                      <div class="item-after">{{infoData.userprice}}元</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">乘车类型</div>
+                                      <div class="item-after">{{state[infoData.orderType]}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content" v-if="showState.orderType" v-on:onload="cart(infoData.orderType)">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">车辆类型</div>
+                                      <div class="item-after">{{ordersinfo.carT}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">联系方式</div>
+                                      <div class="item-after">{{ordersinfo.rider}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">订单状态</div>
+                                      <div class="item-after">{{orderState[infoData.state+1]}}</div>
+                                  </div>
+                              </li>
+                          </ul>
+                      </div>
+
+
+                      <div class="content-block-title">司机信息 <span v-if="showState.driverinfo">(暂时没有司机接单)</span></div>
+                      <div class="list-block">
+                          <ul>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">称呼</div>
+                                      <div class="item-after">{{driverInfo.usercall}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content" >
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">车牌号</div>
+                                      <div class="item-after">{{driverInfo.carcard}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">车身颜色</div>
+                                      <div class="item-after">{{driverInfo.carColor}}</div>
+                                  </div>
+                              </li>
+                              <li class="item-content">
+                                  <div class="item-media"><i class="icon icon-f7"></i></div>
+                                  <div class="item-inner">
+                                      <div class="item-title">联系方式</div>
+                                      <div class="item-after">{{driverInfo.mobile}}</div>
+                                  </div>
+                              </li>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+          </div>
+              <script src="../js/uilt.js"></script>
+              <script src="../sui/js/zepto.js"></script>
+              <script src="../sui/js/sm.min.js"></script>
+              <script src="../sui/js/sm-extend.min.js"></script>
+              <script>
+                  var datalist = [];
+                  var app = null;
+                  var map = ["", "顺风车", "专车", "速递", "快车"];
+                  var page = 2;
+                  var loading = true;
+                  var info = {};
+                  var driverInfo = {usercall:"",carcard:"",carColor:"",mobile:""};
+                  var ordersinfo = {};
+                  var datainfo = {};
+                  var showState = { cart: false, driverinfo: true };
+                  $(function () {
+                      //if (uilt_glob_openid == null) {
+                      //registeruser();
+                      //dataset.headimgurl = userwxinfo.headimgurl;
+                      //dataset.nickname = userwxinfo.username;
+                      //dataset.openid = userwxinfo.wxCount;
+                      //qrscene = userwxinfo.recommender;
+                      //}
+                      //if (databaseUserinfo == null) getuserinfo();
+                      getData(1, 2);
+                      if (datalist.length > 0) {
+                          info = datalist[0];
+                          ordersinfo = JSON.parse(datalist[0].ordersInfo);
+                          if (datalist[0].driverInfo !=null) {
+                              showState.driverinfo = false;
+                              driverInfo = JSON.parse(datalist[0].driverInfo);
+                          }else 
+                          showState.driverinfo= true;
+                      }
+                      
+                      app = new Vue({
+                          el: "#dataset",
+                          data: {
+                              list: datalist,
+                              state: map,
+                              infoData: info,
+                              driverInfo: driverInfo,
+                              ordersinfo: ordersinfo,
+                              showState: showState,
+                              orderState: ["取消", "待出行", "完成交易", "正在进行", "过期","司机已接单"],
+                              operButton: ["", "取消订单", " ", "打赏", " ","取消订单"]
+                          },
+                          methods: {
+                              currentData:function (obj) {
+                                  
+                                  var orde = JSON.parse(obj.ordersInfo);
+                                  
+                                  info.startlocation = obj.startlocation;
+                                  info.endlocation = obj.endlocation;
+                                  info.createTime = obj.createTime;
+                                  info.userprice = obj.userprice;
+                                  info.state = obj.state;
+                                  ordersinfo.carT = orde.carT;
+                                  ordersinfo.rider = orde.rider;
+                                  info.state = obj.state;
+                                  info.driverprice = obj.driverprice;
+                                  if (obj.driverInfo != null) {
+                                      showState.driverinfo = false;
+                                      var t = JSON.parse(obj.driverInfo);
+                                      driverInfo.usercall = t.usercall;
+                                      driverInfo.carcard = t.carcard;
+                                      driverInfo.carColor = t.carColor;
+                                      driverInfo.mobile = t.mobile;
+                                  } else
+                                      showState.driverinfo = true;
+                                  console.log(obj);
+                              },
+                              cart: function (obj) {
+                                  if (obj == 2) showState.cart = true;
+                                  else showState.cart = false;
+                              },
+                              oper: function (obj) {
+                                  //if()
+                                  if (obj.state == 0) up(obj);
+                                  if (obj.state == 4) {
+                                      var data = JSON.parse(data.driverInfo);
+                                      var userinfo = JSON.parse(data.ordersInfo);
+                                      var msg2 = "您接收从" + userinfo.startingPoint + "到" + userinfo.endingPoint + "的订单已经被取消。\r\n时间：" + dt;
+                                      SendMessage(msg2, data.wxCount);;
+                                      up(obj);
+                                  }
+                                  if (obj.state === 2) $.confirm('打赏金额(元):<input type="text" value="" id="dsidtmp" />',
+                                      function () {
+                                          var n = document.getElementById("dsidtmp").value;
+                                          //alert(n);
+                                          ds(obj, n);
+                                      },
+                                      function () {
+                                          $.alert('You clicked Cancel button');
+                                      }
+                                  );
+                              }
+                          }
+                      });
+                  });
+                  function getData(page, limit) {
+                      //databaseUserinfo.id
+                      $.ajax({
+                          url: "/api/orders?where=where%20userid%3D" + 1 + "&limit=" + limit + "&page=" + page,
+                          async: false,
+                          success: function (data) {
+                              loading = true;
+                              if (data.data.length == 0 || data.data.length == data.count) {
+                                  $('.infinite-scroll-preloader').remove();
+                                  loading = false;
+                              }
+                              
+                              for (var i = 0; i < data.data.length; i++)
+                                  datalist.push(data.data[i]);
+                          }
+                      });
+                  }
+
+                  function up(data) {
+                      var datas = { state: -1 };
+                      $.ajax({
+                          url: "/api/orders/" + data.id,
+                          type: "PUT",
+                          data: JSON.stringify(datas),
+                          contentType: "application/json",
+                          success: function (data) {
+                              if (data) {
+                                  $.alert("取消订单成功。");
+                                  window.location.reload();
+                              }
+                              else $.alert("取消订单失败。");
+                          }
+                      });
+                  }
+
+                  function ds(data, n) {
+                      if (parseFloat(n) < 0) {
+                          $.alert("输入错误");
+                          return;
+                      }
+                      var datas = { userprice: parseFloat(data.userprice) + parseFloat(n), driverprice: parseFloat(data.driverprice) + parseFloat(n) };
+                      $.ajax({
+                          url: "/api/orders/" + data.id,
+                          type: "PUT",
+                          data: JSON.stringify(datas),
+                          contentType: "application/json",
+                          success: function (data) {
+                              if (data) {
+                                  $.alert("打赏成功。");
+                                  window.location.reload();
+                              }
+                              else $.alert("打赏失败。");
+                          }
+                      });
+                  }
+
+
+                  // 上次加载的序号
+
+
+                  function refresh(obj) {
+                      if (loading == false) return;
+                      var height = obj.offsetTop;
+                   
+                      var top= $(obj).scrollTop();
+                      if (top >= height - 100) {
+                          loading = false;
+                          getData(page, 2);
+                          page++;
+                      }
+                  };
+                 
+              </script>
+</body>
+</html>

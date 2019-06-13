@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>我的生活</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <script src="../vue/vue.js"></script>
+    <script src="../js/uilt.js"></script>
+    <link href="../sui/css/sm.min.css" rel="stylesheet" />
+    <link href="../sui/css/sm-extend.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div class="page-group">
+        <header class="bar bar-nav">
+            <a class="button button-link button-nav pull-left back" href="earnMoney.html">
+                <span class="icon icon-left"></span>
+                返回
+            </a>
+            <h1 class="title">我的粉丝</h1>
+        </header>
+        <div class="content" id="list">
+            <div class="content-block-title">共有粉丝:{{len}}</div>
+            <div class="list-block" v-if="ishow">
+                <ul v-for="key in list">
+                    <li class="item-content">
+                        <div class="item-media"><i class="icon icon-f7"></i></div>
+                        <div class="item-inner">
+                            <div class="item-title">{{key.createtime}}</div>
+                            <div class="item-after">{{key.username}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        </div>
+        <script src="../sui/js/zepto.js"></script>
+        <script src="../sui/js/sm.min.js"></script>
+        <script src="../sui/js/sm-extend.min.js"></script>
+        <script>
+            $.config = {
+                autoInit: true,
+                router: true
+            }
+            
+
+        </script>
+</body>
+</html>

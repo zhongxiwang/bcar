@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../layui/css/layui.css" rel="stylesheet" />
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../vue/vue.js"></script>
+</head>
+<body>
+    <div id="ds">
+        <form class="layui-form layui-form-pane" id="dataset" style="margin:10px;" action="">
+            <div class="layui-form-item">
+                <label class="layui-form-label">路线</label>
+                <div class="layui-input-block">
+                    <select name="route" id="route" onchange="routeChanage()" lay-filter="route"></select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">起始站</label>
+                <div class="layui-input-inline">
+                    <input type="tel" name="startLocation" lay-verify="yz" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">终点站</label>
+                <div class="layui-input-inline">
+                    <input type="tel" name="endLocation" lay-verify="yz" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+               
+                    <button class="layui-btn" lay-submit="" lay-filter="demo1">创建路线</button>
+               
+            
+        </form>
+        <iframe id="mapid" frameborder="no" border="0" marginwidth="0" allowtransparency="yes" marginheight="0" scrolling="no" src="baidu.html" width="100%" onload="changeFrameHeight()"></iframe>
+    </div>
+        <script>
+            var routeid = null;
+            var newlist = [];
+            var config = {};
+            function routeChanage() {
+                routeid = $("#route").val();
+                var ifm = document.getElementById("mapid");
+                if (routeid == null || routeid == "" || routeid == undefined) return;
+                ifm.src = "./siteL.html?id=" + routeid;
+            }
+
+            function changeFrameHeight() {
+                var ifm = document.getElementById("mapid");
+                ifm.height = document.documentElement.clientHeight;
+            }
+
+            $(function () {
+                $.ajax({
+                    url: "/api/iroute",
+                    async: false,
+                    success: function (data) {
+                        for (var i = 0; i < data.length; i++) {
+                            document.getElementById("route").innerHTML += '<option value="' + data[i].id + '">' + data[i].routeName + '</option>';
+                        }
+                    }
+                });
+                routeChanage();
+            });
+
+            function CreateData() {
+                var t = { irouteid: null, sitename: null, nxdistance: null, lindex: null };
+                t.lindex = newlist.length;
+                t.irouteid = routeid;
+                newlist.push(t);
+            }
+
+            layui.use(['form', 'layedit', 'laydate', 'upload','table'], function () {
+                var form = layui.form
+                    , layer = layui.layer
+                    , layedit = layui.layedit
+                    , upload = layui.upload
+                    , table = layui.table;
+                form.verify({
+                    yz: function (value) {
+                        if (value.length > 128 || value.length < 1) {
+                            return '名字必须大于1，小于128';
+                        }
+                    }
+                });
+                form.on('submit(demo1)', function (data) {
+                    
+                   $.ajax({
+                       url: "/api/iroute",
+                       type: "POST",
+                       data: JSON.stringify(data.field),
+                       contentType:"application/json",
+                       success: function(data){
+                           layer.alert("添加路线成功。", {
+                               title: '成功',
+                               offset: 'tc'
+                           });
+                       }
+                   });
+                    
+                });
+                form.on('select(route)', function (data) {
+                    routeChanage();
+                });
+            });
+        </script>
+</body>
+</html>

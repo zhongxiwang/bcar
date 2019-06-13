@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../layui/css/layui.css" rel="stylesheet" />
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../js/uilt.js"></script>
+    <script src="../vue/vue.js"></script>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="show">更新修改</a>
+        <a class="layui-btn layui-btn-xs" lay-event="desc">取消订单</a>
+    </script>
+</head>
+<body>
+    <table lay-filter="driver" class="layui-hide" id="driver"></table>
+    <script>
+        var table = null;
+        layui.use('table', function () {
+            table = layui.table;
+
+
+            table.render({
+                elem: '#driver'
+                , url: '/api/orders/initial?where=where%20orderType%3D1%20and%20state%3D0'
+                , cols: [[
+                    { field:'endingPoint',title:'下车点',edit:'text'}
+                    ,{ field: 'rider', title: '联系方式', edit: 'text' }
+                    , { field: 'startingPoint', title: '上车点', edit: 'text' }
+                    , { field: 'startDate', title: '乘车时间', edit: 'text' }
+                    , { field: 'personNum', title: '人数', edit: 'text' }
+                    , { field: 'price', title: '用户费用(元)', edit: 'text' }
+                    , { field: 'driverprice', title: '司机费用(元)', edit: 'text' }
+                    , { field: 'nickname', title: '微信名称' }
+                    , { fixed: 'right', title: '操作', toolbar: '#barDemo',width: 180 }
+                ]]
+                ,page:true
+            });
+            table.on('tool(driver)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'detail') {
+                    layer.msg('ID：' + data.id + ' 的查看操作');
+                } else if (obj.event === 'show') {
+                    layer.confirm('确认更新数据？', function (index) {
+                        shstate(data);
+                    });
+                } else if (obj.event === 'desc') {
+                    desc(data);
+                }
+
+
+                //标注选中样式
+                obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            });
+
+        });
+
+        function shstate(data) {
+            var dt = data;
+            delete dt.oid;
+            var datas = { ordersInfo: JSON.stringify(dt) };
+            $.ajax({
+                url: "/api/orders/" + data.oid,
+                type: "PUT",
+                data: JSON.stringify(datas),
+                contentType: "application/json",
+                success: function (data) {
+                    if(data)
+                    layer.alert("信息更新成功。", {
+                        title: '更新成功',
+                        offset: 'tc'
+                        });
+                    else layer.alert("信息更新失败。", {
+                        title: '更新失败',
+                        offset: 'tc'
+                    });
+                }
+            });
+        }
+        function desc(data) {
+            var datas = { state: -1 };
+            $.ajax({
+                url: "/api/orders/" + data.oid,
+                type: "PUT",
+                data: JSON.stringify(datas),
+                contentType: "application/json",
+                success: function (data) {
+                    if (data)
+                        layer.alert("取消订单成功。", {
+                            title: '取消订单',
+                            offset: 'tc'
+                        });
+                    else layer.alert("取消订单失败。", {
+                        title: '取消订单',
+                        offset: 'tc'
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

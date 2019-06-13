@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../layui/css/layui.css" rel="stylesheet" />
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../vue/vue.js"></script>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-xs" lay-event="show">更新修改</a>
+    </script>
+</head>
+<body>
+    <div>
+
+    </div>
+    <table lay-filter="driver" class="layui-hide" id="driver"></table>
+    <script>
+        var table = null;
+        layui.use('table', function () {
+            table = layui.table;
+
+            table.render({
+                elem: '#driver'
+                , url: '/api/Config/ConigAll'
+                , cols: [[
+                      { field: 'description', title: '键名', sort: true }
+                    , { field: 'valuev', title: '数据', edit: 'text' }
+                    , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 250 }
+                ]]
+                ,page:true
+            });
+            table.on('tool(driver)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'detail') {
+                    layer.msg('ID：' + data.id + ' 的查看操作');
+                } else if (obj.event === 'show') {
+                    layer.confirm('确认更新数据？', function (index) {
+                        shstate(data);
+                    });
+                }
+
+
+                //标注选中样式
+                obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            });
+
+        });
+
+        function shstate(data) {
+            var dt = {};
+            dt.valuev = data.valuev;
+
+            $.ajax({
+                url: "/api/Config/" + data.keyv,
+                type: "PUT",
+                data: JSON.stringify(dt),
+                contentType: "application/json",
+                success: function (data) {
+                    if(data)
+                    layer.alert("信息更新成功。", {
+                        title: '更新成功',
+                        offset: 'tc'
+                        });
+                    else layer.alert("信息更新失败。", {
+                        title: '更新失败',
+                        offset: 'tc'
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>
