@@ -146,7 +146,7 @@ function routegh(v1,v2)
                     userinfo.targetLocation.price = price;
                     window.parent.submit();
                     search();
-                    sub = true;
+                    //sub = true;
                 });
 
             }, "1000");

@@ -94,6 +94,30 @@ namespace bcar.Controllers
             return ui;
         }
 
+        [HttpGet]
+        [Route("/abill")]
+        public bool add(int t)
+        {
+            if (t == 0)
+            {
+                this.HttpContext.Session.Remove("fee");
+                return true;
+            }
+            var fee= this.HttpContext.Session.GetInt32("fee");
+            if (fee == null) return false;
+            float pla = (float)fee / 100;
+            var openid = this.HttpContext.Session.GetString("openid");
+            if (openid == null)
+                return false;
+            var ui = this.userc.read(openid);
+            ui.bill += pla;
+            JObject obj = new JObject();
+            obj.Add("bill", ui.bill.ToString());
+            var res= this.db.Execute(uiltT.Update(obj, "userinfo", "where id=" + ui.id));
+            this.HttpContext.Session.Remove("fee");
+            return res == 1 ? true : false;
+        }
+
         /// <summary>
         /// 获取用户粉丝数
         /// </summary>

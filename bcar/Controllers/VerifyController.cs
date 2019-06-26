@@ -14,7 +14,6 @@ namespace bcar.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Produces("application/json")]
     [EnableCors("any")]
     public class VerifyController : ControllerBase
     {
@@ -32,7 +31,6 @@ namespace bcar.Controllers
         [Route("verify")]
         public string Virify()
         {
-            
             var nonce= this.Request.Query["nonce"];
             var timestamp = this.Request.Query["timestamp"];
             var signature = this.Request.Query["signature"];

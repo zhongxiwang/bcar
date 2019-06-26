@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using bcar.service;
 using bcar.Socket;
+using bcar.uilt;
 using bcar.wxpay;
+using Dapper;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using WxPayAPI;
 
 namespace bcar.Controllers
@@ -18,10 +23,21 @@ namespace bcar.Controllers
     [EnableCors("any")]
     public class payController : ControllerBase
     {
+        IDbConnection db { get; set; }
+        userCache userc { get; set; }
+        /// <summary>
+        /// 用户信息
+        /// </summary>
+        public payController(IDbConnection db, userCache uc)
+        {
+            this.db = db;
+            this.userc = uc;
+        }
+
         [HttpGet]
         public string Pays(int fee)
         {
-            string total_fee = "1";
+            this.HttpContext.Session.SetInt32("fee",fee);
             var openid= HttpContext.Session.GetString("openid");
             if (openid != null)
             {
@@ -74,29 +90,34 @@ namespace bcar.Controllers
         /// <param name="json">企业支付数据</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("CorpPay")]
+        [Route("/CorpPay")]
         public async Task<string> CorpPayAsync(int num)
         {
-            var openid = "";// HttpContext.Session.GetString("openid");
+            var openid =  HttpContext.Session.GetString("openid");
+            var uc= this.userc.read(openid);
+            var f = (double)num / 100;
+            if (uc.bill < f) return "输入金额过大";
+            uc.bill -= f;
             if (openid != null)
             {
-                //string url = "http://paysdk.weixin.qq.com/example/JsApiPayPage.aspx?openid=" + openid + "&total_fee=" + total_fee;
-                //Response.Redirect(url);
                 JsApiPay jsApiPay = new JsApiPay(this);
                 jsApiPay.openid = openid;
-                jsApiPay.total_fee = num;// int.Parse(total_fee);
-
+                jsApiPay.total_fee = num;
                 //JSAPI支付预处理
                 try
                 {
-                    WxPayData unifiedOrderResult = jsApiPay.GetCompanycParameters();
+                    WxPayData unifiedOrderResult = jsApiPay.GetCompanycParameters("提现");
                     
                     //在页面上显示订单信息
                     var info = unifiedOrderResult.ToPrintStr();
                     System.Net.Http.HttpClient http = new System.Net.Http.HttpClient();
                     HttpContent hc =new StringContent(unifiedOrderResult.ToXml());
-                    var messageTask =await http.PostAsync("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", hc);
-                    return await messageTask.Content.ReadAsStringAsync();
+                    var str= HttpService.Post(unifiedOrderResult.ToXml(), "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", true, 3000);
+                    //var messageTask =await http.PostAsync("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers", hc);
+                    JObject obj = new JObject();
+                    obj.Add("bill", uc.bill.ToString());
+                    var res = this.db.Execute(uiltT.Update(obj, "userinfo", "where id=" + uc.id));
+                    return str;// await messageTask.Content.ReadAsStringAsync();
                 }
                 catch (Exception ex)
                 {
@@ -108,6 +129,7 @@ namespace bcar.Controllers
 
         private string backCall()
         {
+            var t= this.HttpContext;
             return "";
         }
     }

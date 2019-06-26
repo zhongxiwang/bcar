@@ -92,13 +92,10 @@ var userwxinfo = {
 
 
 function getWxInfo() {
-    var code = urlTools.getUrlParam("code");
-
-    var result = getCookie("openid");
+    
     $.ajax({
-        url: "/api/Token/webtoken?code=" + code + "&openid=" + result,
+        url: "/api/Token/webtoken",
         type: "GET",
-        async: false,
         success: function (data) {
             var json = JSON.parse(data);
             userwxinfo.headimgurl = json["headimgurl"];
@@ -106,7 +103,6 @@ function getWxInfo() {
             userwxinfo.wxCount = json["openid"];
             userwxinfo.recommender = json["qr_scene_str"];
             uilt_glob_openid = userwxinfo.wxCount;
-            setCookie("openid", json["openid"], "s7000");
         }
     });
 }
@@ -115,18 +111,10 @@ function getWxInfo() {
  * 用户注册*/
 function registeruser()
 {
-    var code = urlTools.getUrlParam("code");
 
-    var result = getCookie("openid");
-
-    if (isEmptOrNull(code) && isEmptOrNull(result)) {
-        alert("获取用户数据失败，请重新打开。");
-        return;
-    }
     $.ajax({
-        url: "/api/Token/webtoken?code=" + code + "&openid="+result,
+        url: "/api/Token/webtoken",
         type:"GET",
-        async: false,
         success: function (data) {
             var json = JSON.parse(data);
             userwxinfo.headimgurl = json["headimgurl"];
@@ -134,7 +122,6 @@ function registeruser()
             userwxinfo.wxCount = json["openid"];
             userwxinfo.recommender = json["qr_scene_str"];
             uilt_glob_openid = userwxinfo.wxCount;
-            setCookie("openid", json["openid"], "s7000");
         }
     });
 
@@ -187,7 +174,6 @@ function getuserinfo() {
     $.ajax({
         url: "/userwxgetuserinfo",
         type: "GET",
-        async: false,
         success: function (data)
         {
             databaseUserinfo = data;

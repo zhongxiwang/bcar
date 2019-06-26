@@ -57,25 +57,10 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("webtoken")]
-        public Task<string> webToken(string code, string openid)
+        public Task<string> webToken()
         {
-             if (openid.Equals("undefined")|| openid.Equals("null")) openid = "";
-            var tmp= HttpContext.Session.GetString("openid");
-            if (tmp != null) openid = tmp;
-            if (!string.IsNullOrEmpty(openid))
-            {
-                HttpContext.Session.SetString("openid", openid);
-                var ts= WxUilt.Request.Get("https://api.weixin.qq.com/cgi-bin/user/info?access_token=" + this.token + "&openid=" + openid + "&lang=zh_CN");
-                this._log.Info(ts.Result);
-
-                return ts;
-            }
-            webToken webtoken = new webToken(this.token.Secret, this.token.Coropid, code);
-            string t= webtoken;
-            HttpContext.Session.SetString("openid", webtoken.openid);
-            if (webtokenList.ContainsKey(webtoken.openid))
-                webtokenList[webtoken.openid] = webtoken;
-            return WxUilt.Request.Get("https://api.weixin.qq.com/cgi-bin/user/info?access_token=" + this.token + "&openid=" + webtoken.openid + "&lang=zh_CN");
+            var wxcount = HttpContext.Session.GetString("openid");
+            return WxUilt.Request.Get("https://api.weixin.qq.com/cgi-bin/user/info?access_token=" + this.token + "&openid=" + wxcount + "&lang=zh_CN");
         }
 
         /// <summary>
@@ -85,9 +70,10 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("ShareQrCode")]
-        public string ShareQrCode(string openid)
+        public string ShareQrCode()
         {
-            string s = "{ \"action_name\": \"QR_LIMIT_STR_SCENE\",\"action_info\": { \"scene\": { \"scene_str\": \"" + openid + "\"} }";
+            var wxcount = HttpContext.Session.GetString("openid");
+            string s = "{ \"action_name\": \"QR_LIMIT_STR_SCENE\",\"action_info\": { \"scene\": { \"scene_str\": \"" + wxcount + "\"} }";
             string url = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=" + token;
             var result = WxUilt.Request.Post(url, s).Result;
             JObject json = JObject.Parse(result);

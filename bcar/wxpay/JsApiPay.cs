@@ -201,20 +201,30 @@ namespace WxPayAPI
             return parameters;
         }
 
-        public WxPayData GetCompanycParameters()
+        public WxPayData GetCompanycParameters(string str)
         {
-
+            var partner_trade_no = WxPayApi.GenerateOutTradeNo();
+            var nonce_str = WxPayApi.GenerateNonceStr();
             WxPayData jsApiParam = new WxPayData();
             jsApiParam.SetValue("mch_appid", WxPayConfig.GetConfig().GetAppID());
             jsApiParam.SetValue("mchid", WxPayConfig.GetConfig().GetMchID());
-            jsApiParam.SetValue("nonce_str", WxPayApi.GenerateNonceStr());
-            jsApiParam.SetValue("partner_trade_no", WxPayApi.GenerateNonceStr());
+            jsApiParam.SetValue("nonce_str", nonce_str);
+            jsApiParam.SetValue("partner_trade_no", partner_trade_no);
             jsApiParam.SetValue("signType", "MD5");
-            jsApiParam.SetValue("sign", jsApiParam.MakeSign());
+            var test = "amount=" + total_fee + "&check_name=NO_CHECK&desc=" + str + "&mch_appid=wx6a2e25ee7abfca60&mchid=1531926761&nonce_str=" + nonce_str + "&openid=" + openid + "&partner_trade_no=" + partner_trade_no + "&signType=MD5&spbill_create_ip=121.199.9.114";//39.96.69.52";
+
+            string SignTemp = test + "&key="+WxPayConfig.GetConfig().GetKey();//注：key为商户平台设置的密钥key
+
+
+
+            string sign = SignTemp.MD5().ToUpper(); //注：MD5签名方式
+            //var sign2= jsApiParam.MakeSign(WxPayData.SIGN_TYPE_MD5).ToUpper(); 
+
+            jsApiParam.SetValue("sign",sign);
 
             jsApiParam.SetValue("check_name", "NO_CHECK");
-            jsApiParam.SetValue("desc", "提现");
-            jsApiParam.SetValue("spbill_create_ip", "39.96.69.52");
+            jsApiParam.SetValue("desc", "descript");
+            jsApiParam.SetValue("spbill_create_ip", "121.199.9.114");
             jsApiParam.SetValue("openid", openid);
             jsApiParam.SetValue("amount", total_fee);
 

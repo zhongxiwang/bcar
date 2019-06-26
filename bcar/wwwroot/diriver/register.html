@@ -6,15 +6,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <title>司机端注册</title>
-
-    <script src="../js/uilt.js"></script>
-    <script src="../vue/vue.js"></script>
     <link rel="stylesheet" type="text/css" href="../layui/css/layui.css" />
-    <script type="text/javascript" src="../layui/layui.js"></script>
-    <script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
-
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../js/uilt.js"></script>
     <!--<link rel="stylesheet" type="text/css" href="../css/public.css">
- 
+
     <link rel="stylesheet" type="text/css" href="../css/mobileSelect.css">
     <script src="../js/mobileSelect.js" type="text/javascript"></script>-->
 
@@ -121,14 +117,7 @@
                 <p id="carimagetext"></p>
             </div>
         </div>
-        
-        <div class="layui-upload">
-            <button v-if="ir" type="button" class="layui-btn" id="carimage">车辆侧面照（车牌清晰）</button>
-            <div class="layui-upload-list">
-                <img width="200" onclick="openimage(this)" v-bind:src="carimage" class="layui-upload-img" id="carimageimage">
-                <p id="carimagetext"></p>
-            </div>
-        </div>
+
         <div class="layui-upload" v-if="show">
             <button v-if="ir" type="button" class="layui-btn" id="operationcertificate">运营证</button>
             <div class="layui-upload-list">
@@ -144,6 +133,12 @@
             </div>
         </div>
     </form>
+
+    
+    <script src="../vue/vue.js"></script>
+
+    <script type="text/javascript" src="../layui/layui.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.2.min.js"></script>
     <script>
         //$(document).ready(driver_obj.info1_init);
         var userInfo = {
@@ -151,29 +146,45 @@
             driverlicense: "",
             drivinglicense: "",
             carimage: "",
-            operationcertificate:""
+            operationcertificate: ""
         };
 
         var action = "";
-        var driveri = null;
+        var driveri = {};
         var app = null;
         var read = null;
         $(function () {
+            
             action = urlTools.getUrlParam("id");
             read = urlTools.getUrlParam("r");
             var tmp = action;
-            if (action == null) {
-                //if (uilt_glob_openid == null) registeruser();
-                if (databaseUserinfo == null) getuserinfo();
-                tmp = databaseUserinfo.id;
-            }
+            driveri.ir = true;
+            if (read == 1) driveri.ir = false;
+            var res = urlTools.Config("operationcertificate");
+            if (res == 1) driveri.show = true;
+            else driveri.show = false;
 
-            $.ajax({
-                url: "/api/driverinfo/" + tmp,
-                async: true,
-                success: function (data) {
-                    if (data == undefined) return;
-                    if (action != null) {
+            
+            driveri.driverlicense = "";
+            driveri.carimage = "";
+            driveri.drivinglicense = "";
+            driveri.idcard = "";
+            driveri.operationcertificate = "";
+            driveri.username = "";
+            driveri.usercall = "";
+            driveri.carcard = "";
+            driveri.route = "";
+            driveri.carType = "";
+            driveri.seatNum = "";
+            driveri.carColor = "";
+            driveri.moblie = "";
+            driveri.idcard = "";
+            if (tmp != null && tmp != undefined && tmp != "") {
+                $.ajax({
+                    url: "/api/driverinfo/" + tmp,
+                    async: true,
+                    success: function (data) {
+                        if (data == undefined) return;
                         driveri = data;
                         userInfo.driverlicense = data.drivinglicense;
                         userInfo.carimage = data.carimage;
@@ -184,187 +195,35 @@
                         driveri.carimage = "/api/Fileup/image?id=" + driveri.carimage;
                         driveri.drivinglicense = "/api/Fileup/image?id=" + driveri.drivinglicense;
                         driveri.idcard = "/api/Fileup/image?id=" + driveri.idcard;
-                        driveri.ir = true;
                         driveri.operationcertificate = "/api/Fileup/image?id=" + driveri.operationcertificate;
+                        driveri.ir = true;
                         if (read == 1) driveri.ir = false;
-                        var res = urlTools.Config("operationcertificate");
                         if (res == 1) driveri.show = true;
                         else driveri.show = false;
                         app = new Vue({
                             el: "#dataset",
                             data: driveri
                         });
-                    } else {
-                        if (data.driverstate == 1) window.location.href = "./main.html";
-                        else window.location.href = "./sleep.html";
                     }
-
-                }
-            });
+                });
+            } else {
+                getuserinfo();
+                app = new Vue({
+                    el: "#dataset",
+                    data: driveri
+                });
+            }
         });
 
-          function openimage(obj) {
-              if (action == null) return;
-              var src = $(obj).attr("src");
-              window.open(src);
-          }
-         
-        function fun() {
-            $.ajax({
-                url: "/api/iroute",
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        document.getElementById("route").innerHTML += '<option value="' + data[i].id + '">' + data[i].routeName + '</option>';
-                    }
-                }
-            });
+        function openimage(obj) {
+            if (action == null) return;
+            var src = $(obj).attr("src");
+            window.open(src);
         }
-        fun();
-
-
-
-
-        layui.use(['form', 'layedit', 'laydate', 'upload'], function () {
-            var form = layui.form
-                , layer = layui.layer
-                , layedit = layui.layedit
-                , upload = layui.upload;
-            ///驾驶证上传
-            var driverlicense = upload.render({
-                elem: '#driverlicense'
-                , url: '/api/Fileup/upload'
-                , before: function (obj) {
-                    //预读本地文件示例，不支持ie8
-                    obj.preview(function (index, file, result) {
-                        $('#driverlicenseImage').attr('src', result); //图片链接（base64）
-                    });
-                }
-                , done: function (res) {
-                    //如果上传失败
-                    if (res.code > 0) {
-                        return layer.msg('上传失败');
-                    }
-                    userInfo.driverlicense = res.msg;
-                    //上传成功
-                }
-                , error: function () {
-                    //演示失败状态，并实现重传
-                    var demoText = $('#driverlicensetext');
-                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                    demoText.find('.demo-reload').on('click', function () {
-                        driverlicense.upload();
-                    });
-                }
-            });
-            ///身份证上传
-            var idcard = upload.render({
-                elem: '#idcard'
-                , url: '/api/Fileup/upload'
-                , before: function (obj) {
-                    //预读本地文件示例，不支持ie8
-                    obj.preview(function (index, file, result) {
-                        $('#idcardimage').attr('src', result); //图片链接（base64）
-                    });
-                }
-                , done: function (res) {
-                    //如果上传失败
-                    if (res.code > 0) {
-                        return layer.msg('上传失败');
-                    }
-                    userInfo.idcard = res.msg;
-                    //上传成功
-                }
-                , error: function () {
-                    //演示失败状态，并实现重传
-                    var demoText = $('#idcardtext');
-                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                    demoText.find('.demo-reload').on('click', function () {
-                        idcard.upload();
-                    });
-                }
-            });
-            //行驶证
-            var drivinglicense = upload.render({
-                elem: '#drivinglicense'
-                , url: '/api/Fileup/upload'
-                , before: function (obj) {
-                    //预读本地文件示例，不支持ie8
-                    obj.preview(function (index, file, result) {
-                        $('#drivinglicenseimage').attr('src', result); //图片链接（base64）
-                    });
-                }
-                , done: function (res) {
-                    //如果上传失败
-                    if (res.code > 0) {
-                        return layer.msg('上传失败');
-                    }
-                    userInfo.drivinglicense = res.msg;
-                    //上传成功
-                }
-                , error: function () {
-                    //演示失败状态，并实现重传
-                    var demoText = $('#drivinglicensetext');
-                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                    demoText.find('.demo-reload').on('click', function () {
-                        uploadInst.upload();
-                    });
-                }
-            });
-            ///车辆侧面照
-            var carimage = upload.render({
-                elem: '#carimage'
-                , url: '/api/Fileup/upload'
-                , before: function (obj) {
-                    //预读本地文件示例，不支持ie8
-                    obj.preview(function (index, file, result) {
-                        $('#carimageimage').attr('src', result); //图片链接（base64）
-                    });
-                }
-                , done: function (res) {
-                    //如果上传失败
-                    if (res.code > 0) {
-                        return layer.msg('上传失败');
-                    }
-                    userInfo.carimage = res.msg;
-                    //上传成功
-                }
-                , error: function () {
-                    //演示失败状态，并实现重传
-                    var demoText = $('#carimagetext');
-                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                    demoText.find('.demo-reload').on('click', function () {
-                        carimage.upload();
-                    });
-                }
-            });
-
-
-            //自定义验证规则
-            form.verify({
-                names: function (value) {
-                    if (value.length > 16 || value.length < 2) {
-                        return '名字必须大于2，小于16';
-                    }
-                }
-                , carcard: [
-                    /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/
-                    , '车牌号输入错误'
-                ]
-                , username: function (value) {
-                    if (value.length > 4 || value.length < 2) {
-                        return '昵称输入必须大于2，小于4';
-                    }
-                }
-                , carColor: function (value) {
-                    if (value.length < 1 || value.length > 10) {
-                        return '输入必须大于1，小于10';
-                    }
-                }
-            });
-
-
-            //监听提交
+        var layer, layedit, form, upload;
+        function forms() {
             form.on('submit(demo1)', function (data) {
+                alert("正在提交。");
                 if (userInfo.carimage === "" || userInfo.driverlicense === "" || userInfo.drivinglicense === "" || userInfo.idcard === "") {
                     layer.alert("证件信息不完整", {
                         title: '错误',
@@ -375,14 +234,14 @@
                     data.field.idcard = userInfo.idcard;
                     data.field.drivinglicense = userInfo.drivinglicense;
                     data.field.driverlicense = userInfo.driverlicense;
-                    
+
                     if (action != null) {
                         delete data.field.file;
                         $.ajax({
                             url: "/api/driverinfo/" + action,
                             type: "PUT",
                             data: JSON.stringify(data.field),
-                            contentType:"application/json",
+                            contentType: "application/json",
                             success: function (data) {
                                 layer.alert("信息更新成功。", {
                                     title: '更新成功',
@@ -406,14 +265,201 @@
                             }
                         });
                     }
-
-                    
                 }
                 return false;
             });
+        }
+        function fun() {
+            $.ajax({
+                url: "/api/iroute",
+                async: true,
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) 
+                        document.getElementById("route").innerHTML += '<option value="' + data[i].id + '">' + data[i].routeName + '</option>';
+                    layui.use(['form', 'layedit', 'laydate', 'upload'], function () {
+                         form = layui.form
+                            , layer = layui.layer
+                            , layedit = layui.layedit
+                            , upload = layui.upload;
+
+                        ///驾驶证上传
+                        var driverlicense = upload.render({
+                            elem: '#driverlicense'
+                            , url: '/api/Fileup/upload'
+                            , before: function (obj) {
+                                //预读本地文件示例，不支持ie8
+                                obj.preview(function (index, file, result) {
+                                    $('#driverlicenseImage').attr('src', result); //图片链接（base64）
+                                });
+                            }
+                            , done: function (res) {
+                                //如果上传失败
+                                if (res.code > 0) {
+                                    return layer.msg('上传失败');
+                                }
+                                userInfo.driverlicense = res.msg;
+                                //上传成功
+                            }
+                            , error: function () {
+                                //演示失败状态，并实现重传
+                                var demoText = $('#driverlicensetext');
+                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                demoText.find('.demo-reload').on('click', function () {
+                                    driverlicense.upload();
+                                });
+                            }
+                        });
+                        ///身份证上传
+                        var idcard = upload.render({
+                            elem: '#idcard'
+                            , url: '/api/Fileup/upload'
+                            , before: function (obj) {
+                                //预读本地文件示例，不支持ie8
+                                obj.preview(function (index, file, result) {
+                                    $('#idcardimage').attr('src', result); //图片链接（base64）
+                                });
+                            }
+                            , done: function (res) {
+                                //如果上传失败
+                                if (res.code > 0) {
+                                    return layer.msg('上传失败');
+                                }
+                                userInfo.idcard = res.msg;
+                                //上传成功
+                            }
+                            , error: function () {
+                                //演示失败状态，并实现重传
+                                var demoText = $('#idcardtext');
+                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                demoText.find('.demo-reload').on('click', function () {
+                                    idcard.upload();
+                                });
+                            }
+                        });
+                        //行驶证
+                        var drivinglicense = upload.render({
+                            elem: '#drivinglicense'
+                            , url: '/api/Fileup/upload'
+                            , before: function (obj) {
+                                //预读本地文件示例，不支持ie8
+                                obj.preview(function (index, file, result) {
+                                    $('#drivinglicenseimage').attr('src', result); //图片链接（base64）
+                                });
+                            }
+                            , done: function (res) {
+                                //如果上传失败
+                                if (res.code > 0) {
+                                    return layer.msg('上传失败');
+                                }
+                                userInfo.drivinglicense = res.msg;
+                                //上传成功
+                            }
+                            , error: function () {
+                                //演示失败状态，并实现重传
+                                var demoText = $('#drivinglicensetext');
+                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                demoText.find('.demo-reload').on('click', function () {
+                                    uploadInst.upload();
+                                });
+                            }
+                        });
+                        ///车辆侧面照
+                        var carimage = upload.render({
+                            elem: '#carimage'
+                            , url: '/api/Fileup/upload'
+                            , before: function (obj) {
+                                //预读本地文件示例，不支持ie8
+                                obj.preview(function (index, file, result) {
+                                    $('#carimageimage').attr('src', result); //图片链接（base64）
+                                });
+                            }
+                            , done: function (res) {
+                                //如果上传失败
+                                if (res.code > 0) {
+                                    return layer.msg('上传失败');
+                                }
+                                userInfo.carimage = res.msg;
+                                //上传成功
+                            }
+                            , error: function () {
+                                //演示失败状态，并实现重传
+                                var demoText = $('#carimagetext');
+                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                demoText.find('.demo-reload').on('click', function () {
+                                    carimage.upload();
+                                });
+                            }
+                        });
+
+                        ///运营证
+                        var operationcertificate = upload.render({
+                            elem: '#operationcertificate'
+                            , url: '/api/Fileup/upload'
+                            , before: function (obj) {
+                                //预读本地文件示例，不支持ie8
+                                obj.preview(function (index, file, result) {
+                                    $('#operationcertificateimage').attr('src', result); //图片链接（base64）
+                                });
+                            }
+                            , done: function (res) {
+                                //如果上传失败
+                                if (res.code > 0) {
+                                    return layer.msg('上传失败');
+                                }
+                                userInfo.operationcertificate = res.msg;
+                                //上传成功
+                            }
+                            , error: function () {
+                                //演示失败状态，并实现重传
+                                var demoText = $('#operationcertificatetext');
+                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                                demoText.find('.demo-reload').on('click', function () {
+                                    carimage.upload();
+                                });
+                            }
+                        });
+
+                        //自定义验证规则
+                        form.verify({
+                            names: function (value) {
+                                if (value.length > 16 || value.length < 2) {
+                                    return '名字必须大于2，小于16';
+                                }
+                            }
+                            , carcard: [
+                                /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/
+                                , '车牌号输入错误'
+                            ]
+                            , username: function (value) {
+                                if (value.length > 4 || value.length < 2) {
+                                    return '昵称输入必须大于2，小于4';
+                                }
+                            }
+                            , carColor: function (value) {
+                                if (value.length < 1 || value.length > 10) {
+                                    return '输入必须大于1，小于10';
+                                }
+                            }
+                        });
+                        forms();
+
+                        //监听提交
+                       
+                    });
+                }
+            });
+        }
+        fun();
+
+        
+        window.onload = function () {
+            
+        }
+
+        
 
 
-        });
+        
     </script>
 </body>
 </html>

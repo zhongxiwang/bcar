@@ -63,7 +63,7 @@
                             <dd><a href="javascript:click('ordersbyZc.html');">专车订单</a></dd>
                             <dd><a href="javascript:click('ordersbysfc.html');">顺风车订单</a></dd>
                             <dd><a href="javascript:click('ordersbySd.html');">速递订单</a></dd>
-                            <dd><a href="javascript:click('diriverInfo.html');">消息推送</a></dd>
+                            <!--<dd><a href="javascript:click('diriverInfo.html');">消息推送</a></dd>-->
                         </dl>
                     </li>
 
@@ -110,7 +110,7 @@
 
         
         var wsImpl = window.WebSocket || window.MozWebSocket;
-        window.ws = new wsImpl('ws://localhost:8181/username/sys' + username +"/system/sys");
+        window.ws = new wsImpl('ws://baibiancx.top:8181/username/sys' + username +"/system/sys");
         window.ws.onopen = function () {
             console.log("websocket ok");
         }

@@ -25,8 +25,7 @@ namespace bcar.Socket
         private UseSocket(string Ip)
         {
             this._address = Ip;
-            try
-            {
+
                 _Servier = new WebSocketServer(this._address);
                 _Servier.Start(socket =>
                 {
@@ -46,11 +45,8 @@ namespace bcar.Socket
                          BinaryMessage(socket.GetPaarmiter(username), b);
                      };
                 });
-            }
-            catch
-            {
-                throw new Exception("参数错误！来自UseSocket ，初始化失败");
-            }
+            
+
         }
         private UseSocket() : this("ws://0.0.0.0:8181")
         {

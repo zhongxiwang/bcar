@@ -46,7 +46,7 @@
     var p2 = null;
     var sub = false;
     function targLocation() {
-        alert("")
+        alert("正在解析地址。");
         if (sub) return;
         //sub = true;
         var result = G("suggestId").value;
@@ -100,8 +100,6 @@
             url: "/api/DriverLocation/nearbydriver?lat=" + userinfo.currentInfo.location.lat + "&lng=" + userinfo.currentInfo.location.lng + "&id=" + window.parent.orderId,
             success: function (data) {
                 //console.log(data);
-               // alert("等待司机接单，结果将会微信推送给您。");
-                //alert(JSON.stringify(data));
             }
         });
     }

@@ -199,14 +199,19 @@ namespace bcar.Controllers
         {
             return Result.Run(ress =>
             {
+                var openid= HttpContext.Session.GetString("openid");
                 if (value.riderType != 4 && value.startDate.AddMinutes(2) <= DateTime.Now.AddHours(2)) throw new Exception("乘坐时间必须在2小时后") ;
                 if (value.riderType == 4) value.startDate.AddMinutes(5);
                 orders result = Hup.CreateMsg.Run(value).Content;
-                var user = this.Uc.read(value.openid);
+                var user = this.Uc.read(openid);
                 result.userid = user.id;
                 var sql = result.Insert();
+                var cmd = this.db.CreateCommand();
+                cmd.CommandText = sql;
+                cmd.ExecuteNonQuery();
+                cmd.CommandText = "select LAST_INSERT_ID()";
                 var n = this.db.Execute(sql);
-                var id = this.db.ExecuteScalar<long>("select LAST_INSERT_ID()");
+                var id = (long)cmd.ExecuteScalar() ; //this.db.ExecuteScalar<long>("");
                 value.startDate = value.startDate.AddMinutes(5);
 
                 Task.Run(async () =>
@@ -217,7 +222,7 @@ namespace bcar.Controllers
                         obj.Add("state", 3);
                         string upsql = uilt.uiltT.Update(obj, "orders", " where id='" + id + "' ");
                         db.Execute(upsql);
-                        uilt.uiltT.SendWxMessage(token, "您的订单从" + value.startingPoint + "到" + value.endingPoint + "的   行程，由于长时间没有司机接单已经超时，请重新创建行程。", value.openid);
+                        uilt.uiltT.SendWxMessage(token, "您的订单从" + value.startingPoint + "到" + value.endingPoint + "的   行程，由于长时间没有司机接单已经超时，请重新创建行程。", openid);
                         return Task.CompletedTask;
                     }, "task" + id);
                 });

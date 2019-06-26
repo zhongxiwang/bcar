@@ -22,6 +22,7 @@ namespace bcar.Controllers
     {
         public IDbConnection db { get; set; }
         public CostService cost { get; set; }
+        public string openid { get; set; }
         public shareBillController(IDbConnection db, CostService cost)
         {
             this.db = db;
@@ -35,8 +36,9 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/getsy")]
-        public IEnumerable<sharebill> getsy(string wxcount)
+        public IEnumerable<sharebill> getsy( )
         {
+            var wxcount = HttpContext.Session.GetString("openid");
             return this.db.Query<sharebill>("select * from sharebill where opertype <> '3' and username='"+wxcount+"'");
             
         }
@@ -48,8 +50,9 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/gettx")]
-        public IEnumerable<sharebill> gettx(string wxcount)
+        public IEnumerable<sharebill> gettx()
         {
+            var wxcount = HttpContext.Session.GetString("openid");
             return this.db.Query<sharebill>("select * from sharebill where opertype ='3' and username='" + wxcount + "'");
         }
 
@@ -60,8 +63,9 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("/proxy")]
-        public string proxy(string wxcount)
+        public string proxy()
         {
+            var wxcount = HttpContext.Session.GetString("openid");
             bool result= this.cost.proxy(wxcount);
             if (result)
             {

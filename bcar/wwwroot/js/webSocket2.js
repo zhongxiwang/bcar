@@ -13,7 +13,7 @@ var ReyCount = 0;
 var websocket = {
     WebSocketOpen: function (username, open) {
         var wsImpl = window.WebSocket || window.MozWebSocket;
-        window.ws = new wsImpl('ws://localhost:8181/username/' + username);
+        window.ws = new wsImpl('ws://baibiancx.top:8181/username/' + username);
         window.ws.onopen  = function () {
             console.log("websocket ok");
             if (open != null) open();

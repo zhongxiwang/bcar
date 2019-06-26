@@ -30,13 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Flecks\Flecks.csproj" />
     <ProjectReference Include="..\Hup\Hup.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Fleck">
-      <HintPath>dll\Fleck.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

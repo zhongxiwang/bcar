@@ -129,14 +129,14 @@
                     <li class="item-content item-link">
                         <div class="item-media"><i class="icon icon-f7"></i></div>
                         <div class="item-inner">
-                            <div class="item-title"><a href="#tgsyold">推广收益记录</a></div>
+                            <div class="item-title"><a href="#tgsyold">推广收益记录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></div>
                             <div class="item-after"> </div>
                         </div>
                     </li>
                     <li class="item-content item-link">
                         <div class="item-media"><i class="icon icon-f7"></i></div>
                         <div class="item-inner">
-                            <div class="item-title"><a href="#txold">提现历史</a></div>
+                            <div class="item-title"><a href="#txold">提现历史&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></div>
                             <div class="item-after"> </div>
                         </div>
                     </li>
@@ -146,14 +146,14 @@
                             <div class="item-inner">
                                 <div class="item-title label">本次提现金额</div>
                                 <div class="item-input">
-                                    <input type="text" placeholder="提现金额" />
+                                    <input type="text" id="prs" placeholder="提现金额" />
                                 </div>
                             </div>
                         </div>
                     </li>
                 </ul>
             </div>
-            <a href="#" class="button button-big button-fill button-success">提现</a>
+            <a href="javascript:tx();" class="button button-big button-fill button-success">提现</a>
         </div>
         <div class="page" id="txold">
             <header class="bar bar-nav">
@@ -212,51 +212,65 @@
         <script>
             var datalist = {};
             var app = null;
+            var sinv = null;
             (function () {
-
-                if (uilt_glob_openid == null) {
-                    registeruser();
-                    var action = urlTools.getUrlParam("action");
-                    if (action != null) {
-                        switch (action) {
-                            case "qrcode": qrcode();
-                        }
+                var b1 = true,b2=true,b3=true,b4=true;
+                var action = urlTools.getUrlParam("action");
+                if (action != null) {
+                    switch (action) {
+                        case "qrcode": qrcode();
                     }
                 }
+
                 $.ajax({
-                    url: "/fans?wxcount=" + uilt_glob_openid,
+                    url: "/fans",
                     type: "GET",
-                    async: false,
+                    async: true,
                     success: function (data) {
                         datalist.list = data;
                         datalist.len = data.length;
                         datalist.ishow = data.length == 0 ? false : true;
+                        b1 = false;
                     }
                 });
                 $.ajax({
-                    url: "/getsy?wxcount=" + uilt_glob_openid,
+                    url: "/getsy",
                     type: "GET",
-                    async: false,
+                    async: true,
                     success: function (data) {
                         datalist.sylist = data;
                         datalist.sylen = data.length;
+                        b2 = false;
                     }
                 });
                 $.ajax({
-                    url: "/gettx?wxcount=" + uilt_glob_openid,
+                    url: "/gettx",
                     type: "GET",
-                    async: false,
+                    async: true,
                     success: function (data) {
                         datalist.txlist = data;
                         datalist.txlen = data.length;
+                        b3 = false;
                     }
                 });
-                if (databaseUserinfo == null) getuserinfo();
-                datalist.userbill = databaseUserinfo.bill;
-                app = new Vue({
-                    el: "#dataset",
-                    data: datalist
+                $.ajax({
+                    url: "/userwxgetuserinfo",
+                    type: "GET",
+                    success: function (data) {
+                        databaseUserinfo = data;
+                        datalist.userbill = databaseUserinfo.bill;
+                        b4 = false;
+                    }
                 });
+                sinv = setInterval(function () {
+                    if (b1 || b2 || b3 || b4) return;
+                    app = new Vue({
+                        el: "#dataset",
+                        data: datalist
+                    });
+                    clearInterval(sinv);
+                }, 100);
+
             }());
             function qrcode() {
                 if (databaseUserinfo.proxy === 0) {
@@ -301,9 +315,43 @@
                             WeixinJSBridge.invoke('getBrandWCPayRequest', JSON.parse(data),
                                 function (res) {
                                     WeixinJSBridge.log(res.err_msg);
-                                    $.alert("充值失败。");
+                                    if (res.err_msg == "get_brand_wcpay_request:ok") {
+                                        
+                                        $.ajax( {
+                                            url: "/abill?t=1",
+                                            type: "GET",
+                                            success: function (b) {
+                                                if (b) $.alert("微信支付成功!");
+                                                else $.alert("微信支付失败!");
+                                            }
+                                        });
+                                    } else if (res.err_msg == "get_brand_wcpay_request:cancel") {
+                                        $.ajax({
+                                            url: "/abill?t=0",
+                                            type: "GET",
+                                            success: function (b) {
+                                                if(b)alert("用户取消支付!");
+                                            }
+                                        });
+                                        
+                                    } else {
+                                        alert("支付失败!");
+                                    }  
                                 }
                             );
+                        }
+                    });
+                });
+            }
+
+            function tx() {
+                var n= document.getElementById("prs").value;
+                $.confirm('提取现金' + n + "元.", function () {
+                    $.ajax({
+                        url: "/CorpPay?num="+n*100,
+                        type: "GET",
+                        success: function (data) {
+                            alert(data);
                         }
                     });
                 });

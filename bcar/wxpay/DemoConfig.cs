@@ -38,7 +38,7 @@ namespace WxPayAPI.lib
          * 3.商户服务器要做好病毒和木马防护工作，不被非法侵入者窃取证书文件。
         */
         public string GetSSlCertPath(){
-            return @"H:\zs\WXCertUtil\cert\1531926761_20190610_cert\apiclient_cert.pem";
+            return @"H:\zs\WXCertUtil\cert\1531926761_20190610_cert\apiclient_cert.p12";
         }
         public string GetSSlCertPassword(){
             return "1531926761";

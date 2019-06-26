@@ -160,6 +160,7 @@ namespace bcar
         {
             var t = Startup.GlobConfiguration["mysql"];
             IDbConnection db = new MySql.Data.MySqlClient.MySqlConnection(this.Configuration["mysql"]);
+             db.Open();
             JObject obj = new JObject();
             obj.Add("state", 3);
             var lists = db.Query<orders>("select * from orders where state='0' ");

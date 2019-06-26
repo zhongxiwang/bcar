@@ -36,10 +36,10 @@
 </head>
 <body>
     <script>
-        function changeFrameHeight() {
-            var ifm = document.getElementById("mapid");
-            ifm.height = document.documentElement.clientHeight;
-        }
+        //function changeFrameHeight() {
+        //    var ifm = document.getElementById("mapid");
+        //    ifm.height = document.documentElement.clientHeight;
+        //}
     </script>
     <div id="orderinfo">
         <div class="page">
@@ -433,17 +433,8 @@
         var qrscene = "";
         window.onload = function () {
 
-
-            var code = urlTools.getUrlParam("code");
-
-            var result = getCookie("openid");
-
-            if (isEmptOrNull(code) && isEmptOrNull(result)) {
-                alert("获取用户数据失败，请重新打开。");
-                return;
-            }
             $.ajax({
-                url: "/api/Token/webtoken?code=" + code + "&openid=" + result,
+                url: "/api/Token/webtoken",
                 type: "GET",
                 async: true,
                 success: function (data) {
@@ -453,7 +444,6 @@
                     userwxinfo.wxCount = json["openid"];
                     userwxinfo.recommender = json["qr_scene_str"];
                     uilt_glob_openid = userwxinfo.wxCount;
-                    setCookie("openid", json["openid"], "s7000");
                     dataset.headimgurl = userwxinfo.headimgurl;
                     dataset.nickname = userwxinfo.username;
                     dataset.openid = userwxinfo.wxCount;

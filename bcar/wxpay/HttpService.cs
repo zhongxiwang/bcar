@@ -8,6 +8,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Http;
+using System.Security.Cryptography;
 
 namespace WxPayAPI
 {
@@ -63,15 +64,23 @@ namespace WxPayAPI
                 byte[] data = System.Text.Encoding.UTF8.GetBytes(xml);
                 request.ContentLength = data.Length;
 
+
+
+
+
+
+
                 //是否使用证书
                 if (isUseCert)
                 {
-                    //string path = HttpContext.Current.Request.PhysicalApplicationPath;
-                    //X509Certificate2 cert = new X509Certificate2(path + WxPayConfig.GetConfig().GetSSlCertPath(), WxPayConfig.GetConfig().GetSSlCertPassword());
-                    //request.ClientCertificates.Add(cert);
+                    string path = "";// Environment.CurrentDirectory;
+                    X509Certificate2 cert = new X509Certificate2(path + WxPayConfig.GetConfig().GetSSlCertPath(), WxPayConfig.GetConfig().GetSSlCertPassword());
+
+
+                    request.ClientCertificates.Add(cert);
                     Log.Debug("WxPayApi", "PostXml used cert");
                 }
-
+                request.KeepAlive = true;
                 //往服务器写入数据
                 reqStream = request.GetRequestStream();
                 reqStream.Write(data, 0, data.Length);

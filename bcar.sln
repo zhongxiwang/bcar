@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bcar", "bcar\bcar.csproj", "{9B026AA4-B15D-4427-A7E3-0330810F72E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hup", "Hup\Hup.csproj", "{A33DE6ED-231A-439D-97EB-46996C7DF246}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hup", "Hup\Hup.csproj", "{A33DE6ED-231A-439D-97EB-46996C7DF246}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flecks", "Flecks\Flecks.csproj", "{BF6B4DA3-5083-45C4-9118-3C5154B4C46C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A33DE6ED-231A-439D-97EB-46996C7DF246}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A33DE6ED-231A-439D-97EB-46996C7DF246}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A33DE6ED-231A-439D-97EB-46996C7DF246}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF6B4DA3-5083-45C4-9118-3C5154B4C46C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF6B4DA3-5083-45C4-9118-3C5154B4C46C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF6B4DA3-5083-45C4-9118-3C5154B4C46C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF6B4DA3-5083-45C4-9118-3C5154B4C46C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
