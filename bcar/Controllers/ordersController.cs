@@ -207,13 +207,14 @@ namespace bcar.Controllers
                 result.userid = user.id;
                 var sql = result.Insert();
                 var cmd = this.db.CreateCommand();
+                this.db.Open();
                 cmd.CommandText = sql;
                 cmd.ExecuteNonQuery();
                 cmd.CommandText = "select LAST_INSERT_ID()";
                 var n = this.db.Execute(sql);
-                var id = (long)cmd.ExecuteScalar() ; //this.db.ExecuteScalar<long>("");
+                var id = (ulong)cmd.ExecuteScalar() ; //this.db.ExecuteScalar<long>("");
                 value.startDate = value.startDate.AddMinutes(5);
-
+                this.db.Close();
                 Task.Run(async () =>
                 {
                     await TaskManagerService.Factory().AutoRun(value.startDate, key =>

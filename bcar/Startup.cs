@@ -152,8 +152,6 @@ namespace bcar
                 };
                 var result= Hup.CreateMsg.Run(request);
             };
-            
-
         }
 
         void outTimeOrders()

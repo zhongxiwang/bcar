@@ -14,6 +14,8 @@ namespace WxPayAPI.lib
         * MCHID：商户号（必须配置）
         * KEY：商户支付密钥，参考开户邮件设置（必须配置），请妥善保管，避免密钥泄露
         * APPSECRET：公众帐号secert（仅JSAPI支付的时候需要配置），请妥善保管，避免密钥泄露
+        * 
+        * apiv3：63a9f0ea7bb98050796b649e85481845
         */
 
         public string GetAppID(){
