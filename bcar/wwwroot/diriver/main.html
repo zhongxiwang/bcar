@@ -50,14 +50,25 @@
         $(function () {
 
             if (uilt_glob_openid == null) {
-                getWxInfo();
+                $.ajax({
+                    url: "/api/Token/webtoken",
+                    type: "GET",
+                    success: function (data) {
+                        var json = JSON.parse(data);
+                        userwxinfo.headimgurl = json["headimgurl"];
+                        userwxinfo.username = json["nickname"];
+                        userwxinfo.wxCount = json["openid"];
+                        userwxinfo.recommender = json["qr_scene_str"];
+                        uilt_glob_openid = userwxinfo.wxCount;
+                        websocket.WebSocketOpen(userwxinfo.wxCount);
+                        dataset.headimgurl = userwxinfo.headimgurl;
+                        dataset.nickname = userwxinfo.username;
+                        dataset.openid = userwxinfo.wxCount;
+                        qrscene = userwxinfo.recommender;
+                      }
+                 });
                 if (databaseUserinfo == null) getuserinfo();
-                websocket.WebSocketOpen(userwxinfo.wxCount);
                 stopConnetion = setInterval("getLocation()", 50000);
-                dataset.headimgurl = userwxinfo.headimgurl;
-                dataset.nickname = userwxinfo.username;
-                dataset.openid = userwxinfo.wxCount;
-                qrscene = userwxinfo.recommender;
             }
 
             setTimeout(function () {
