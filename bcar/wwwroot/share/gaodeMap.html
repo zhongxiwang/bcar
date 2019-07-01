@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=3baf566fe06a95e2922d7de07c2d0411"></script>
+
+    <title></title>
+    <style>
+        #container {
+            width: 100%;
+            height: 700px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+
+    <script src="../js/gdMap.js"></script>
+    <script>
+        var url = 'https://webapi.amap.com/maps?v=1.4.15&key=3baf566fe06a95e2922d7de07c2d0411&callback=onLoad';
+        var jsapi = document.createElement('script');
+        jsapi.charset = 'utf-8';
+        jsapi.src = url;
+        document.head.appendChild(jsapi);
+        window.onLoad = function () {
+            var map = new AMap.Map('container', {
+                zoom: 13,
+                center: [116.43, 39.92],
+                resizeEnable: true
+            });
+            map.add(marker(23, 23));
+        }
+    </script>
+</body>
+</html>

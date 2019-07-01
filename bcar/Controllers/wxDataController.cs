@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using bcar.model;
@@ -10,6 +11,8 @@ using Dapper;
 using log4net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NETCore.Encrypt;
+using NETCore.Encrypt.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace bcar.Controllers
@@ -28,9 +31,10 @@ namespace bcar.Controllers
             {"share","/share/Share.html" },
             {"driver","/share/rect.html" },
             {"qrcode","/share/Ffens.html" },
+            {"shagepage","/share/sharepage.html" },
             {"fm","/share/fearnMoney.html" },
             {"xc","/share/myTrip.html" },
-            {"reg","/diriver/register.html" },
+            {"reg","/diriver/registerInfo.html" },
             {"sleep","/diriver/sleep.html" }
         };
         public wxDataController(TokenService token, ILog log, IDbConnection con, userCache uc)
@@ -40,15 +44,20 @@ namespace bcar.Controllers
             this._log = log;
             this.usc = uc;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="code"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public RedirectResult Setopenid(string id, string code)
         {
             webToken webtoken = new webToken(this.token.Secret, this.token.Coropid, code);
             string t = webtoken;
             HttpContext.Session.SetString("openid", webtoken.openid);
-            var n = this._db.ExecuteScalar<long>("select count(1) from userinfo  where wxCount='" + webtoken.openid + "' ");
-            if (n != 1)
+            var n = this._db.QueryFirstOrDefault<userinfo>("select * from userinfo  where wxCount='" + webtoken.openid + "' ");
+            if (n == null)
             {
                 var usedata = WxUilt.Request.Get("https://api.weixin.qq.com/cgi-bin/user/info?access_token=" + this.token + "&openid=" + webtoken.openid + "&lang=zh_CN");
                 register(webtoken.openid);
@@ -59,6 +68,15 @@ namespace bcar.Controllers
                 if (driverstate == null) id = "reg";
                 else if((int)driverstate!=1)id = "sleep";
             }
+            else if(id.Equals("shagepage"))
+            {
+                string key = webtoken.openid+webtoken.openid.MD5();
+                return Redirect(list[id] + "?key=" + key);
+            }else if (id.Equals("share"))
+            {
+                if (n.mobile==null) n.mobile = "";
+                return Redirect(list[id] + "?mo=" + n.mobile);
+            }
             return Redirect(list[id]);
         }
 
@@ -67,6 +85,27 @@ namespace bcar.Controllers
         public string openid()
         {
             return HttpContext.Session.GetString("openid");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("getShareQrcode")]
+        public string getShareQrcode(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return "";
+            string openid = id.Substring(0, id.Length - 32);
+            try
+            {
+                var ui = this.usc.read(openid);
+                return ui.qrCode;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void register( string wxcount)

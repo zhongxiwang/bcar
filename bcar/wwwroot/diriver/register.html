@@ -86,6 +86,7 @@
             </div>
         </div>
 
+
         <div class="layui-upload">
             <button v-if="ir" type="button" class="layui-btn" id="idcard">身份证正面照</button>
             <div class="layui-upload-list">
@@ -93,6 +94,7 @@
                 <p id="idcardtext"></p>
             </div>
         </div>
+
 
         <div class="layui-upload">
             <button v-if="ir" type="button" class="layui-btn" id="driverlicense">驾驶证</button>
@@ -133,7 +135,9 @@
             </div>
         </div>
     </form>
+    <div style="height:50px;">
 
+    </div>
     
     <script src="../vue/vue.js"></script>
 
@@ -175,7 +179,7 @@
             driveri.carcard = "";
             driveri.route = "";
             driveri.carType = "";
-            driveri.seatNum = "";
+            driveri.seatNum = "4";
             driveri.carColor = "";
             driveri.moblie = "";
             driveri.idcard = "";
@@ -286,6 +290,7 @@
                         var driverlicense = upload.render({
                             elem: '#driverlicense'
                             , url: '/api/Fileup/upload'
+                            , size: 512
                             , before: function (obj) {
                                 //预读本地文件示例，不支持ie8
                                 obj.preview(function (index, file, result) {
@@ -294,25 +299,19 @@
                             }
                             , done: function (res) {
                                 //如果上传失败
-                                if (res.code > 0) {
-                                    return layer.msg('上传失败');
+                                if (res.code != 1) {
+                                    alert('驾驶证上传失败');
+                                } else {
+                                    alert('驾驶证上传成功');
+                                    userInfo.driverlicense = res.msg;
                                 }
-                                userInfo.driverlicense = res.msg;
-                                //上传成功
-                            }
-                            , error: function () {
-                                //演示失败状态，并实现重传
-                                var demoText = $('#driverlicensetext');
-                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                                demoText.find('.demo-reload').on('click', function () {
-                                    driverlicense.upload();
-                                });
                             }
                         });
                         ///身份证上传
                         var idcard = upload.render({
                             elem: '#idcard'
                             , url: '/api/Fileup/upload'
+                            , size: 512
                             , before: function (obj) {
                                 //预读本地文件示例，不支持ie8
                                 obj.preview(function (index, file, result) {
@@ -321,25 +320,19 @@
                             }
                             , done: function (res) {
                                 //如果上传失败
-                                if (res.code > 0) {
-                                    return layer.msg('上传失败');
+                                if (res.code != 1) {
+                                    alert('身份证上传失败');
+                                } else {
+                                    alert('身份证上传成功');
+                                    userInfo.idcard = res.msg;
                                 }
-                                userInfo.idcard = res.msg;
-                                //上传成功
-                            }
-                            , error: function () {
-                                //演示失败状态，并实现重传
-                                var demoText = $('#idcardtext');
-                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                                demoText.find('.demo-reload').on('click', function () {
-                                    idcard.upload();
-                                });
                             }
                         });
                         //行驶证
                         var drivinglicense = upload.render({
                             elem: '#drivinglicense'
                             , url: '/api/Fileup/upload'
+                            , size: 512
                             , before: function (obj) {
                                 //预读本地文件示例，不支持ie8
                                 obj.preview(function (index, file, result) {
@@ -348,25 +341,21 @@
                             }
                             , done: function (res) {
                                 //如果上传失败
-                                if (res.code > 0) {
-                                    return layer.msg('上传失败');
+                                if (res.code != 1) {
+                                    alert('行驶证上传失败');
+                                } else {
+                                    alert('行驶证照上传成功');
+                                    userInfo.drivinglicense = res.msg;
                                 }
-                                userInfo.drivinglicense = res.msg;
+                                
                                 //上传成功
-                            }
-                            , error: function () {
-                                //演示失败状态，并实现重传
-                                var demoText = $('#drivinglicensetext');
-                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                                demoText.find('.demo-reload').on('click', function () {
-                                    uploadInst.upload();
-                                });
                             }
                         });
                         ///车辆侧面照
                         var carimage = upload.render({
                             elem: '#carimage'
                             , url: '/api/Fileup/upload'
+                            ,size:512
                             , before: function (obj) {
                                 //预读本地文件示例，不支持ie8
                                 obj.preview(function (index, file, result) {
@@ -375,19 +364,14 @@
                             }
                             , done: function (res) {
                                 //如果上传失败
-                                if (res.code > 0) {
-                                    return layer.msg('上传失败');
+                                if (res.code != 1) {
+                                    alert('车辆侧面照上传失败');
+                                } else {
+                                    alert('车辆侧面照上传成功');
+                                    userInfo.carimage = res.msg;
                                 }
-                                userInfo.carimage = res.msg;
+                                
                                 //上传成功
-                            }
-                            , error: function () {
-                                //演示失败状态，并实现重传
-                                var demoText = $('#carimagetext');
-                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                                demoText.find('.demo-reload').on('click', function () {
-                                    carimage.upload();
-                                });
                             }
                         });
 
@@ -395,6 +379,7 @@
                         var operationcertificate = upload.render({
                             elem: '#operationcertificate'
                             , url: '/api/Fileup/upload'
+                            , size: 512
                             , before: function (obj) {
                                 //预读本地文件示例，不支持ie8
                                 obj.preview(function (index, file, result) {
@@ -402,20 +387,12 @@
                                 });
                             }
                             , done: function (res) {
-                                //如果上传失败
-                                if (res.code > 0) {
-                                    return layer.msg('上传失败');
+                                if (res.code != 1) {
+                                    alert('运营证上传失败');
+                                } else {
+                                    alert('运营证上传成功');
+                                    userInfo.operationcertificate = res.msg;
                                 }
-                                userInfo.operationcertificate = res.msg;
-                                //上传成功
-                            }
-                            , error: function () {
-                                //演示失败状态，并实现重传
-                                var demoText = $('#operationcertificatetext');
-                                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                                demoText.find('.demo-reload').on('click', function () {
-                                    carimage.upload();
-                                });
                             }
                         });
 
@@ -450,15 +427,6 @@
             });
         }
         fun();
-
-        
-        window.onload = function () {
-            
-        }
-
-        
-
-
         
     </script>
 </body>

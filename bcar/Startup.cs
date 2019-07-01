@@ -96,6 +96,7 @@ namespace bcar
             services.AddSingleton<CostService>();
             services.AddSingleton<driverCache>();
             services.AddDistributedMemoryCache();
+            services.AddSingleton<jsapiTokencs>();
             services.AddSession();
             outTimeOrders();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

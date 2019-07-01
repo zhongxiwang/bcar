@@ -32,7 +32,6 @@ namespace bcar.Controllers
         [Route("upload")]
         public object upload()
         {
-            
             var path = System.IO.Directory.GetCurrentDirectory();
             string[] result = new string[this.Request.Form.Files.Count];
             int i = 0;
@@ -58,7 +57,7 @@ namespace bcar.Controllers
                 trans.Rollback();
                 return new { msg="", code = 2 };
             }
-            return new { msg = string.Join(',', result), code = 0 } ;
+            return new { msg = string.Join(',', result), code = 1 } ;
         }
 
         [HttpGet()]

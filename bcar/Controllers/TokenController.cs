@@ -22,13 +22,14 @@ namespace bcar.Controllers
     public class TokenController : ControllerBase
     {
         TokenService token { get; set; }
-
+        jsapiTokencs _jsapi { get; set; }
         static Dictionary<string, webToken> webtokenList = new Dictionary<string, webToken>();
         readonly ILog _log;
-        public TokenController(TokenService token, ILog log)
+        public TokenController(TokenService token, ILog log,jsapiTokencs jsapi)
         {
             this.token = token;
             this._log = log;
+            this._jsapi = jsapi;
         }
         /// <summary>
         /// 获取token
@@ -44,12 +45,10 @@ namespace bcar.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("apiticket")]
-        public string jsapi()
+        [Route("/apiticket")]
+        public string jsapi(string url)
         {
-            var result= WxUilt.Request.Get("https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=" + this.token + "&type=jsapi").Result;
-            JObject obj = JObject.Parse(result);
-            return obj["ticket"].ToString();
+            return this._jsapi.signature(url);
         }
         /// <summary>
         /// web Token
@@ -93,8 +92,5 @@ namespace bcar.Controllers
             var message= this.Request.Form["message"];
             uilt.uiltT.SendWxMessage(this.token, message, openid);
         }
-
-
-
     }
 }

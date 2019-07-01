@@ -190,7 +190,7 @@
                                     <li>
                                         <div class="item-content">
 
-                                            <div class="item-inner  " onclick="inputLoction(2,this)">
+                                            <div class="item-inner  " onclick="inputLoction(2,this,1)">
                                                 <div class="item-title label">目的地</div>
                                                 <div class="item-input">
                                                     <div>{{endingPoint}}</div>
@@ -231,6 +231,17 @@
                                     </li>
                                     <li>
                                         <div class="item-content">
+                                            <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+                                            <div class="item-inner">
+                                                <div class="item-title label">费用</div>
+                                                <div class="item-input">
+                                                    <input  id="zccost" disabled type="text" placeholder="费用" v-model="price" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="item-content">
 
                                             <div class="item-inner ">
                                                 <div class="item-input">
@@ -254,9 +265,6 @@
 
                             <div class="content-block">
                                 <div class="row" v-if="xy">
-                                    <div>
-                                        <span style="color:red;">预估价格:</span>{{price}}￥
-                                    </div>
                                     <div><a href="#" onclick="submit()" class="button button-big button-fill button-success">提交</a></div>
                                 </div>
                             </div>
@@ -395,6 +403,8 @@
                 </div>
                 <p><a href="myTrip.html" class="close-panel"><i class="fa fa-wpforms" aria-hidden="true"></i> 我的行程</a></p>
                 <p><a href="earnMoney.html" class="close-panel"><i class="fa fa-share" aria-hidden="true"></i> 分享赚钱</a></p>
+                <p><a href="chatmy.html" class="close-panel"><i class="fa fa-share" aria-hidden="true"></i> 联系我们</a></p>
+                <p><a href="setting.html" class="close-panel"><i class="fa fa-share" aria-hidden="true"></i> 设置</a></p>
                 <!--<p><a href="#" class="close-panel"><i class="fa fa-car" aria-hidden="true"></i> 约 车</a></p>-->
                 <!--<p><a href="#" class="close-panel">关闭</a></p>-->
             </div>
@@ -409,7 +419,7 @@
 
     <script>
         $.config = {
-            //autoInit: true,
+            //autoInit: true, 
             router: true
         }
         var searchResult = {};
@@ -432,7 +442,9 @@
         };
         var qrscene = "";
         window.onload = function () {
-
+            dataset.rider = urlTools.getUrlParam("mo");
+            var dot = this.document.getElementById("mapid");
+            document.getElementById('mapid').contentWindow.setMobile(dataset.rider);
             $.ajax({
                 url: "/api/Token/webtoken",
                 type: "GET",
@@ -475,6 +487,8 @@
                     alert("请先填上车地址");
                     return;
                 }
+                if (dataset.riderType==2)
+                document.getElementById("zccost").removeAttribute("disabled");
                 lj += "?loc=" + dataset.startingPoint;
             }
             var div = document.createElement("div");
@@ -507,15 +521,24 @@
             $("#datetime-picker").datetimePicker();
         });
         var orderId = -1;
+        var subt = true;
         function submit() {
+
             var datetimeid = null;
+            if (dataset.riderType == 2)
+                
             switch (dataset.riderType) {
                 case 1: datetimeid = "datetime-picker"; break;
-                case 2: datetimeid = "datetime-picker2"; break;
+                case 2: {
+                    datetimeid = "datetime-picker2";
+                    document.getElementById("zccost").setAttribute("disabled", "disabled");
+                }break;
                 case 3: datetimeid = "datetime-picker3"; break;
                 case 4: dataset.startDate = DateFormat();
             }
             if (datetimeid != null) dataset.startDate = $("#" + datetimeid).val();
+            if (!subt) return;
+            subt = false;
             $.ajax({
                 url: "/api/orders/submitorderinfo",
                 data: JSON.stringify(dataset),
@@ -523,6 +546,7 @@
                 async: false,
                 contentType: "application/json",
                 success: function (data) {
+                    subt = true;
                     if (data.code == 1) {
                         orderId = data.data;
                         alert("创建订单完成,等待司机接单.可以再您的行程中查看订单。");

@@ -12,6 +12,9 @@ using bcar.model;
 using Newtonsoft.Json.Linq;
 using bcar.service;
 using bcar.Socket;
+using System.Text;
+using NETCore.Encrypt.Extensions;
+using NETCore.Encrypt;
 
 namespace bcar.Controllers
 {
@@ -176,7 +179,19 @@ namespace bcar.Controllers
         {
              this.db.Execute(uiltT.Update(value, "userinfo", "where id=" + id));
         }
-
+        /// <summary>
+        /// 更新用户信息
+        /// </summary>
+        /// <param name="mobile"></param>
+        [HttpGet]
+        [Route("/mobile")]
+        public void mobile(string mobile)
+        {
+            var id= HttpContext.Session.GetString("openid");
+            JObject obj = new JObject();
+            obj.Add("mobile", mobile);
+            this.db.Execute(uiltT.Update(obj, "userinfo", "where wxCount='" + id+"'"));
+        }
         /// <summary>
         /// 删除用户信息
         /// </summary>

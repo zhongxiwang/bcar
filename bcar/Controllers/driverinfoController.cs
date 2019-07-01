@@ -12,6 +12,7 @@ using System.Data;
 using System.Collections;
 using Newtonsoft.Json.Linq;
 using bcar.service;
+using System.Net.Http;
 using bcar.Socket;
 
 namespace bcar.Controllers
@@ -29,14 +30,17 @@ namespace bcar.Controllers
         IDbConnection db { get; set; }
 
         RedisService redis { get; set; }
+
+        TokenService token { get; set; }
         /// <summary>
         /// driver infomaction
         /// </summary>
         /// <param name="db"></param>
-        public driverinfoController(IDbConnection db,RedisService redis)
+        public driverinfoController(IDbConnection db,RedisService redis,TokenService token)
         {
             this.db = db;
             this.redis = redis;
+            this.token = token;
         }
         /// <summary>
         /// 获取全部司机信息
@@ -93,7 +97,59 @@ namespace bcar.Controllers
         [HttpPost]
         public void Post([FromBody] driverinfo value)
         {
+            var list = new string[]
+            {
+                value.idcard,
+                value.driverlicense,
+                value.carimage,
+                value.drivinglicense,
+                value.operationcertificate
+            };
+            var result= downloadImage(list);
+            value.idcard = result[0];
+            value.driverlicense = result[1];
+            value.carimage = result[2];
+            value.drivinglicense = result[3];
+            value.operationcertificate = result[4];
             this.db.Execute(value.Insert());
+        }
+
+        private string[] downloadImage(string[] serverid)
+        {
+            var path = System.IO.Directory.GetCurrentDirectory();
+            string[] result = new string[serverid.Length]; 
+            int i = 0;
+            HttpClient client = new HttpClient();
+            if (this.db.State != ConnectionState.Open) this.db.Open();
+            var trans = this.db.BeginTransaction();
+            try
+            {
+                Task.Run(async () =>
+               {
+                   foreach (var key in serverid)
+                   {
+                       if (string.IsNullOrEmpty(key))
+                       {
+                           result[i++] = key;
+                           continue;
+                       }
+                       model.upload tmp = new model.upload();
+                       string url = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=" + this.token + "&media_id=" + key;
+                       var dataset = await client.GetByteArrayAsync(url);
+                       System.IO.File.WriteAllBytes(path + "/data/image/" + tmp.id, dataset);
+                       result[i++] = tmp.id;
+                       this.db.Execute(tmp.Insert());
+                   }
+
+                   trans.Commit();
+               }).Wait();
+                return result;
+            }
+            catch (Exception e)
+            {
+                trans.Rollback();
+                return null;
+            }
         }
 
         /// <summary>
@@ -120,3 +176,4 @@ namespace bcar.Controllers
         }
     }
 }
+

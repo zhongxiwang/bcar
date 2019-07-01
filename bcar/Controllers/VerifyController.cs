@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using bcar.service;
 using bcar.Socket;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -18,9 +19,11 @@ namespace bcar.Controllers
     public class VerifyController : ControllerBase
     {
         IConfiguration Conf { get; set; }
-        public VerifyController(IConfiguration conf)
+        TokenService ts { get; set; }
+        public VerifyController(IConfiguration conf, TokenService token)
         {
             this.Conf = conf;
+            ts = token;
         }
 
         /// <summary>
@@ -54,6 +57,7 @@ namespace bcar.Controllers
         [Route("verify")]
         public string VirifyPost()
         {
+            bool sisubscribe = false;
             var nonce = this.Request.Query["nonce"];
             var timestamp = this.Request.Query["timestamp"];
             var signature = this.Request.Query["signature"];
@@ -87,7 +91,21 @@ namespace bcar.Controllers
                 }
                 else if (key.Name == "ToUserName") req.RecUserlist.Add(key.InnerText);
                 else if (key.Name == "FromUserName") req.SendUser = key.InnerText;
+                else if(key.Name== "toUser")
+                {
+
+                }else if(key.Name== "Event")
+                {
+                    if (key.InnerText.Equals("subscribe"))
+                    {
+                        sisubscribe = true;
+                    }
+                }
                 else req.SetHead(key.Name, key.InnerText);
+            }
+            if (sisubscribe)
+            {
+                uilt.uiltT.SendWxMessage(this.ts, "出行用百变，打车更方便，，加入全员代理坐享亿万收益！", req.SendUser);
             }
             var x= Hup.CreateMsg.Run(req);
             return x.Content;

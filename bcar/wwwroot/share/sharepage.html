@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>标题</title>
+    <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="../js/uilt.js"></script>
+</head>
+<body>
+    <center><h3>活动规则</h3></center>
+    <ol>
+        <li>成为代理商后邀请，分享的客户成为代理后可得100元收益</li>
+        <li>打车提推荐用户消费额的百分之五</li>
+        <li>司机提推荐司机营运额的百分之五</li>
+        <li>这个是终生收益</li>
+    </ol>
+    
+    <span style="color:red;">通过点击又上角进行分享</span>
+    <h4>长按识别二维码，扫码关注</h4>
+    <div id="imgs">
+    </div>
+    <script>
+        function image()
+        {
+            var key = urlTools.getUrlParam("key");
+            var xhr = new XMLHttpRequest();
+            xhr.open("get", "/api/wxData/getShareQrcode?id=" + key);
+            xhr.onload = function (data) {
+                var src = data.currentTarget.responseText;
+                document.getElementById("imgs").innerHTML = "<img width='150' src='" + src + "' />";
+            };
+            xhr.send();
+            
+        }
+        image();
+    </script>
+</body>
+</html>
