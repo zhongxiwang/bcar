@@ -51,7 +51,7 @@
         //sub = true;
         var result = G("suggestId").value;
         if (result == "" || result == "当前位置") result = userinfo.currentlocation;
-        alert(userinfo.currentlocation);
+        
         var result2 = G("suggestId2").value;
         var myGeo = new BMap.Geocoder();
         myGeo.getPoint(result, function (point) {

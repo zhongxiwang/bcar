@@ -44,7 +44,8 @@ namespace bcar.Controllers
             var result = new List<driverlocation>();
             var userlist = new List<string>();
             
-            var order= this.idb.QueryFirst<orders>("select * from orders where id="+id);
+            var order= this.idb.QueryFirstOrDefault<orders>("select * from orders where id="+id);
+            if (order == null) return null;
             var req= Hup.CreateMsg.CreateRequest(order, "orderMessage");
             driverService.isLock = true;
             double statusR = -1;

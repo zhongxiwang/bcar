@@ -35,6 +35,19 @@ namespace bcar.service
                 return null;
             }
         }
+
+        public userinfo readById(string id)
+        {
+            try
+            {
+                   var result = this.con.QueryFirst<userinfo>("select * from userinfo where id='" + id + "'");
+                return result;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
         public void update(string wxcount)
         {
             try
@@ -48,6 +61,10 @@ namespace bcar.service
             }
         }
 
+        public void rmove(string wxcount)
+        {
+            this.redis.delete(wxcount);
+        }
         
     }
 }

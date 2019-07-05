@@ -177,6 +177,9 @@ namespace bcar.Controllers
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] JObject value)
         {
+            var us= this.userc.readById(id.ToString());
+            //this.userc.read(us.wxCount);
+            this.userc.rmove(us.wxCount);
              this.db.Execute(uiltT.Update(value, "userinfo", "where id=" + id));
         }
         /// <summary>

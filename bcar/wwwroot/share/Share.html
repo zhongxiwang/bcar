@@ -525,7 +525,7 @@
         function submit() {
 
             var datetimeid = null;
-            if (dataset.riderType == 2)
+            //if (dataset.riderType == 2) fun();
                 
             switch (dataset.riderType) {
                 case 1: datetimeid = "datetime-picker"; break;
@@ -550,7 +550,9 @@
                     if (data.code == 1) {
                         orderId = data.data;
                         alert("创建订单完成,等待司机接单.可以再您的行程中查看订单。");
-                    } else {
+                    } else if (data.code == 2) {
+                        
+                    }else    {
                         alert(data.msg);
                     }
                        

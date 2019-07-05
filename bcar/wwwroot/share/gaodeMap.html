@@ -3,7 +3,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=3baf566fe06a95e2922d7de07c2d0411"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link href="../sui/css/sm.min.css" rel="stylesheet" />
+    <link href="../sui/css/sm-extend.css" rel="stylesheet" />
+    <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=3baf566fe06a95e2922d7de07c2d0411&plugin=AMap.Driving,AMap.Autocomplete"></script>
 
     <title></title>
     <style>
@@ -14,23 +23,93 @@
     </style>
 </head>
 <body>
+    <!--<div class="item-media"><i class="icon icon-form-name"></i></div>-->
+
+    <input type="text" id="tipinput" placeholder="手机号码" />
+    <input type="text" id="tipinput2" placeholder="手机号码" />
     <div id="container"></div>
+    <div id="panel"></div>
 
     <script src="../js/gdMap.js"></script>
     <script>
-        var url = 'https://webapi.amap.com/maps?v=1.4.15&key=3baf566fe06a95e2922d7de07c2d0411&callback=onLoad';
-        var jsapi = document.createElement('script');
-        jsapi.charset = 'utf-8';
-        jsapi.src = url;
-        document.head.appendChild(jsapi);
-        window.onLoad = function () {
-            var map = new AMap.Map('container', {
-                zoom: 13,
-                center: [116.43, 39.92],
-                resizeEnable: true
-            });
-            map.add(marker(23, 23));
+
+        var city = "";
+        var address = "";
+                center: [116.397428, 39.90923],//地图中心点
+            zoom: 13
+        });
+        var auto = new AMap.Autocomplete({
+            input: "tipinput"
+        });
+
+        var auto2 = new AMap.Autocomplete({
+            input: "tipinput2"
+        });
+        var driving = new AMap.Driving({
+            map: map,
+            panel: "panel"
+        });
+
+        AMap.plugin(["AMap.Geolocation"], function () {
+            var geolocation = new AMap.Geolocation(options);
+            map.addControl(geolocation);
+            var result = geolocation.getCurrentPosition(function (status, result) {
+                if (status == 'complete') {
+                    city = result.addressComponent.city;
+                    address = result.formattedAddress;
+                } else {
+                    alert("定位出错，请刷新重试");
+                }
+            })
+        });
+        function serarch() {
+            IrouteName("深圳市罗湖区泥岗站c出口", "深圳湾公园", "");
         }
+
+        /**
+         * 当前位置
+         * */
+        function CurrentLocation() {
+            AMap.plugin(["AMap.Geolocation"], function () {
+                var geolocation = new AMap.Geolocation(options);
+                map.addControl(geolocation);
+                var result = geolocation.getCurrentPosition(function (status, result) {
+                    if (status == 'complete') {
+                        city = result.addressComponent.city;
+                        address = result.formattedAddress;
+                    } else {
+                        alert("定位出错，请刷新重试");
+                    }
+                })
+            });
+        }
+
+        /**
+         * 添加车辆marker
+         * @param data
+         */
+        function addCar(data) {
+            map.clearOverlays();
+            for (var i = 0; i < data.length; i++) {
+                var json = data[i];
+                var point = new BMap.Point(json.pointx, json.pointy);
+                var marker = new BMap.Marker(point, { icon: myIcon });
+                map.addOverlay(marker);
+            }
+        }
+
+        /**
+         * 或车辆信息
+         * */
+        function data() {
+            $.ajax({
+                url: "/api/DriverLocation",
+                success: function (data) {
+                    addCar(data);
+                }
+            });
+        }
+
     </script>
 </body>
 </html>

@@ -27,6 +27,7 @@ namespace bcar.model
             catch(Exception e)
             {
                 result.msg = e.Message;
+                if(result.code==1)
                 result.code = -1;
             }
             return result;

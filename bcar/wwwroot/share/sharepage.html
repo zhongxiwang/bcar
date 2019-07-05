@@ -9,17 +9,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>标题</title>
     <script src="../js/jquery-1.11.2.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script src="../js/Config.js"></script>
     <script src="../js/uilt.js"></script>
 </head>
 <body>
     <center><h3>活动规则</h3></center>
     <ol>
-        <li>成为代理商后邀请，分享的客户成为代理后可得100元收益</li>
-        <li>打车提推荐用户消费额的百分之五</li>
-        <li>司机提推荐司机营运额的百分之五</li>
-        <li>这个是终生收益</li>
+        <li>成为代理商后可已以通过二维码发展的乘客和司机。发展的乘客或者司机，如也成为代理商，发展人可得100元奖励。</li>
+        <li>代理商发展的乘客用本平台叫车可终身享有该乘客消费额的百分之五分润。</li>
+        <li>代理商发展的司机用本平台接单营运的，代理商可终身享有该司机接单额的百分之五的分润。</li>
+        <li>不是代理商也可以推荐乘客和司机但不能享受本乘车平台的分享福利！</li>
     </ol>
-    
+
+    快快加入代理通过点击又右上角进行分享赚钱吧！
+
     <span style="color:red;">通过点击又上角进行分享</span>
     <h4>长按识别二维码，扫码关注</h4>
     <div id="imgs">
@@ -28,14 +32,37 @@
         function image()
         {
             var key = urlTools.getUrlParam("key");
+            if (urlTools.getUrlParam("iss") == 1) {
+                alert("您当前是代理商，分享能够获得收益。");
+                window.location.href = "http://" + window.location.host + "/share/sharepage.html?key=" + urlTools.getUrlParam("key");
+            } else if (urlTools.getUrlParam("iss") == 0){
+                alert("您当前不是代理商，成为代理商后分享能够获得收益。");
+                window.location.href = "http://" + window.location.host + "/share/sharepage.html?key=" + urlTools.getUrlParam("key");
+            }
             var xhr = new XMLHttpRequest();
             xhr.open("get", "/api/wxData/getShareQrcode?id=" + key);
-            xhr.onload = function (data) {
+            xhr.onload = function (data){
                 var src = data.currentTarget.responseText;
                 document.getElementById("imgs").innerHTML = "<img width='150' src='" + src + "' />";
             };
             xhr.send();
-            
+        }
+        function fun() {
+            wx.ready(function () {      //需在用户可能点击分享按钮前就先调用
+                wx.updateTimelineShareData({
+                    title: '百变出行', // 分享标题
+                    desc: '百变出行', // 分享描述
+                    link: "http://" + window.location.host + "?key=" + urlTools.getUrlParam("key"),
+                    imgUrl: '', // 分享图标
+                    success: function () {
+                        // 设置成功
+                        alert("Ok");
+                    }
+                })
+            });
+        }
+        complate = function () {
+            fun();
         }
         image();
     </script>

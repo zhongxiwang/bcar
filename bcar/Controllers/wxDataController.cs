@@ -71,7 +71,7 @@ namespace bcar.Controllers
             else if(id.Equals("shagepage"))
             {
                 string key = webtoken.openid+webtoken.openid.MD5();
-                return Redirect(list[id] + "?key=" + key);
+                return Redirect(list[id] + "?key=" + key+"&iss="+n.proxy);
             }else if (id.Equals("share"))
             {
                 if (n.mobile==null) n.mobile = "";

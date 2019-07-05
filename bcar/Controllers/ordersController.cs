@@ -204,6 +204,12 @@ namespace bcar.Controllers
                 if (value.riderType == 4) value.startDate.AddMinutes(5);
                 orders result = Hup.CreateMsg.Run(value).Content;
                 var user = this.Uc.read(openid);
+                if (user.bill < value.price)
+                {
+                    ress.code = 2;
+                    ress.data = value.price;
+                    throw new Exception("账户余额不足。");
+                }
                 result.userid = user.id;
                 var sql = result.Insert();
                 var cmd = this.db.CreateCommand();
@@ -215,6 +221,7 @@ namespace bcar.Controllers
                 var id = (ulong)cmd.ExecuteScalar() ; //this.db.ExecuteScalar<long>("");
                 value.startDate = value.startDate.AddMinutes(5);
                 this.db.Close();
+                string[] eumslist = new string[] { "", "顺风车", "专车", "速递", "快车" };
                 Task.Run(async () =>
                 {
                     await TaskManagerService.Factory().AutoRun(value.startDate, key =>
@@ -223,10 +230,19 @@ namespace bcar.Controllers
                         obj.Add("state", 3);
                         string upsql = uilt.uiltT.Update(obj, "orders", " where id='" + id + "' ");
                         db.Execute(upsql);
-                        uilt.uiltT.SendWxMessage(token, "您的订单从" + value.startingPoint + "到" + value.endingPoint + "的   行程，由于长时间没有司机接单已经超时，请重新创建行程。", openid);
+                        uilt.uiltT.SendWxMessage(token, "您的订单从" + value.startingPoint + "到" + value.endingPoint + "的行程，由于长时间没有司机接单已经超时，请重新创建行程。", openid);
                         return Task.CompletedTask;
                     }, "task" + id);
                 });
+
+                Task.Run(() =>
+                {
+                    var list = this.db.Query<string>("select wxCount from userinfo join driverinfo on userinfo.id=driverinfo.userid where driverstate=1");
+                    foreach (var key in list)
+                    {
+                        uilt.uiltT.SendWxMessage(token, "有新的从" + value.startingPoint + "到" + value.endingPoint + "的" + eumslist[value.riderType] + "订单。", key);
+                    }
+                }).Wait();
                 ress.data = id;
             });
 
@@ -293,19 +309,22 @@ namespace bcar.Controllers
         {
             if (this.db.State != ConnectionState.Open) this.db.Open();
             var trn = this.db.BeginTransaction();
-            
             try
             {
                 var order= this.db.QueryFirst<orders>("select * from orders where id=" + id);
-                var userprice= this.db.ExecuteScalar<float>("select bill-userprice from userinfo, orders where userinfo.id = orders.userid and orders.id = "+id);
-                this.db.Execute("	UPDATE  userinfo set bill=" + userprice + " where id=" + order.userid);
-                var drierprice = this.db.ExecuteScalar<float>("select bill+driverprice from userinfo, orders where userinfo.id = orders.driverid and orders.id = "+id);
-                this.db.Execute("	UPDATE  userinfo set bill=" + drierprice + " where id=" + order.driverid);
+                var users= this.Uc.readById(order.userid.ToString());
+                users.bill = Math.Round(users.bill - order.userprice, 2);
+                this.db.Execute("	UPDATE  userinfo set bill=" + users.bill + " where id=" + order.userid);
+
+                var drivers = this.Uc.readById(order.driverid);
+                Task.Run(() =>
+                {
+                    this.Uc.rmove(users.wxCount);
+                    this.Uc.rmove(drivers.wxCount);
+                });
+                drivers.bill = Math.Round( drivers.bill + order.driverprice);
+                this.db.Execute("	UPDATE  userinfo set bill=" + drivers.bill + " where id=" + order.driverid);
                 int n = this.db.Execute(uiltT.Update(value, "orders", "where id=" + id));
-                uilt.uiltT.SendWxMessage(this.token, "你从"+order.startlocation+"到"+order.endlocation+"的订单有一笔"+order.userprice+"元的消费\r\n时间:"+order.createTime.ToString("yyyy-MM-dd hh:mm"), this.db.ExecuteScalar<string>("select wxCount from userinfo where id="+ order.userid));
-                var driverWxCount= this.db.ExecuteScalar<string>("select wxCount from userinfo where id=" + order.driverid);
-                uilt.uiltT.SendWxMessage(this.token, "你从" + order.startlocation + "到" + order.endlocation + "的订单有一笔" + order.driverprice + "元的收入\r\n时间:" + order.createTime.ToString("yyyy-MM-dd hh:mm"), driverWxCount);
-                if (driverService.driverinfo.ContainsKey(driverWxCount)) driverService.driverinfo[driverWxCount].status = 1;
                 trn.Commit();
 
                 return n > 0 ? true : false;
@@ -315,8 +334,15 @@ namespace bcar.Controllers
                 var t = e.Message;
                 trn.Rollback();
             }
-            
             return false;
+        }
+
+         private void SendTz(orders order)
+        {
+            uilt.uiltT.SendWxMessage(this.token, "你从" + order.startlocation + "到" + order.endlocation + "的订单有一笔" + order.userprice + "元的消费\r\n时间:" + order.createTime.ToString("yyyy-MM-dd hh:mm"), this.db.ExecuteScalar<string>("select wxCount from userinfo where id=" + order.userid));
+            var driverWxCount = this.db.ExecuteScalar<string>("select wxCount from userinfo where id=" + order.driverid);
+            uilt.uiltT.SendWxMessage(this.token, "你从" + order.startlocation + "到" + order.endlocation + "的订单有一笔" + order.driverprice + "元的收入\r\n时间:" + order.createTime.ToString("yyyy-MM-dd hh:mm"), driverWxCount);
+                            if (driverService.driverinfo.ContainsKey(driverWxCount)) driverService.driverinfo[driverWxCount].status = 1;
         }
 
         /// <summary>
