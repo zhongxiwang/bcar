@@ -22,7 +22,7 @@ namespace bcar.Controllers
     [ApiController]
     [Produces("application/json")]
     [EnableCors("any")]
-    [Authentication]
+    //[Authentication]
     public class ordersController : ControllerBase
     {
         IDbConnection db { get; set; }
@@ -197,9 +197,15 @@ namespace bcar.Controllers
         [Route("submitorderinfo")]
         public Result Post([FromBody] orderinfo value)
         {
+            lock (this)
+            {
+                 var str= HttpContext.Session.GetInt32("order");
+                if (str != null&& DateTime.Now.Minute==str) return Result.Run(res => throw new Exception("不能频繁提交订单"));
+            }
             return Result.Run(ress =>
             {
                 var openid= HttpContext.Session.GetString("openid");
+                HttpContext.Session.SetInt32("order",DateTime.Now.Minute);
                 if (value.riderType != 4 && value.startDate.AddMinutes(2) <= DateTime.Now.AddHours(2)) throw new Exception("乘坐时间必须在2小时后") ;
                 if (value.riderType == 4) value.startDate.AddMinutes(5);
                 orders result = Hup.CreateMsg.Run(value).Content;
@@ -314,9 +320,12 @@ namespace bcar.Controllers
                 var order= this.db.QueryFirst<orders>("select * from orders where id=" + id);
                 var users= this.Uc.readById(order.userid.ToString());
                 users.bill = Math.Round(users.bill - order.userprice, 2);
+                
                 this.db.Execute("	UPDATE  userinfo set bill=" + users.bill + " where id=" + order.userid);
 
-                var drivers = this.Uc.readById(order.driverid);
+                userinfo drivers = null;
+                if (order.driverid == order.userid.ToString()) drivers = users;
+                else drivers=this.Uc.readById(order.driverid);
                 Task.Run(() =>
                 {
                     this.Uc.rmove(users.wxCount);
@@ -326,7 +335,7 @@ namespace bcar.Controllers
                 this.db.Execute("	UPDATE  userinfo set bill=" + drivers.bill + " where id=" + order.driverid);
                 int n = this.db.Execute(uiltT.Update(value, "orders", "where id=" + id));
                 trn.Commit();
-
+                SendTz(order);
                 return n > 0 ? true : false;
             }
             catch(Exception e)
@@ -337,12 +346,12 @@ namespace bcar.Controllers
             return false;
         }
 
-         private void SendTz(orders order)
+        private void SendTz(orders order)
         {
             uilt.uiltT.SendWxMessage(this.token, "你从" + order.startlocation + "到" + order.endlocation + "的订单有一笔" + order.userprice + "元的消费\r\n时间:" + order.createTime.ToString("yyyy-MM-dd hh:mm"), this.db.ExecuteScalar<string>("select wxCount from userinfo where id=" + order.userid));
             var driverWxCount = this.db.ExecuteScalar<string>("select wxCount from userinfo where id=" + order.driverid);
             uilt.uiltT.SendWxMessage(this.token, "你从" + order.startlocation + "到" + order.endlocation + "的订单有一笔" + order.driverprice + "元的收入\r\n时间:" + order.createTime.ToString("yyyy-MM-dd hh:mm"), driverWxCount);
-                            if (driverService.driverinfo.ContainsKey(driverWxCount)) driverService.driverinfo[driverWxCount].status = 1;
+              if (driverService.driverinfo.ContainsKey(driverWxCount)) driverService.driverinfo[driverWxCount].status = 1;
         }
 
         /// <summary>

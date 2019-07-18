@@ -169,6 +169,7 @@ namespace bcar.Controllers
             if (distance[distance.Length - 1] == '米') distancen = 1;//double.Parse(distance.Substring(0, distance.Length - 1));
             else if (distance[distance.Length - 1] == '里') distancen = double.Parse(distance.Substring(0, distance.Length - 2));
             else distancen = double.Parse(distance);
+            if (type == 4) distancen = double.Parse(distance)/1000;
             try
             {
                 Func<double, double,double,double> action = (StartingPrice, StartingDistance, StartOldPrice) =>

@@ -24,7 +24,7 @@ namespace bcar.Controllers
     [ApiController]
     [Produces("application/json")]
     [EnableCors("any")]
-    [Authentication]
+    //[Authentication]
     public class driverinfoController : ControllerBase
     {
         IDbConnection db { get; set; }

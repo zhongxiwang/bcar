@@ -30,10 +30,24 @@
                                 <input type="text" placeholder="手机号码" id="mobile">
                             </div>
                         </div>
+
+                    </div>
+                </li>
+
+
+                <li>
+                    <div class="item-content">
+                        <div class="item-media"><i class="icon icon-form-name"></i></div>
+                        <div class="item-inner">
+                            <div class="item-title label">称呼</div>
+                            <div class="item-input">
+                                <input type="text" placeholder="称呼" id="username    ">
+                            </div>
+                        </div>
                     </div>
                 </li>
             </ul>
-        </div>
+        </div>                        
         <div class="content-block">
             <div class="row">
                 <div class="col-50" onclick="sumit()"><a href="#" class="button button-big button-fill button-success">修改</a></div>
@@ -43,13 +57,24 @@
     <script>
         function sumit() {
             var val = document.getElementById("mobile").value;
+            var username = document.getElementById("username").value;
+            if (IsNull(val) && IsNull(username)) {
+                $.alert("输入不能为空");
+                return;
+            }
+            if (isNaN(val)) val ="";
+            if (IsNull(username)) username = "";
             $.ajax({
-                url: "/mobile?mobile="+val,
+                url: "/mobile?mobile=" + val + "&username=" + username,
                 type:"GET",
                 success: function (data) {
                     alert("修改完成.");
                 }
             })
+        }
+        function IsNull(val) {
+            if (val == null || val == undefined || val == "") return true;
+            return false;
         }
     </script>
 </body>

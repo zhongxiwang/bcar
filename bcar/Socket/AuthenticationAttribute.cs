@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using bcar.model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
@@ -23,12 +24,13 @@ namespace bcar.Socket
                 var openid = filterContext.HttpContext.Session.GetString("openid");
                 if (string.IsNullOrWhiteSpace(openid))
                 {
-                    filterContext.Result = new RedirectToRouteResult("/bm/signin.html");
+
                     //结果转为自定义消息格式
-                    HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-                    // 重新封装回传格式
-                    filterContext.HttpContext.Response.StatusCode = 401;
-                    return;
+                    filterContext.Result = new ContentResult()
+                    {
+                        Content = Newtonsoft.Json.JsonConvert.SerializeObject(Result.Run(key =>key.code = -1))
+                    };
+
                 }
             }
         }

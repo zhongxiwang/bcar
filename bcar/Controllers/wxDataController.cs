@@ -32,10 +32,12 @@ namespace bcar.Controllers
             {"driver","/share/rect.html" },
             {"qrcode","/share/Ffens.html" },
             {"shagepage","/share/sharepage.html" },
-            {"fm","/share/fearnMoney.html" },
+            {"fm","/share/earnMoney.html" },
             {"xc","/share/myTrip.html" },
             {"reg","/diriver/registerInfo.html" },
-            {"sleep","/diriver/sleep.html" }
+            {"sleep","/diriver/sleep.html" },
+            {"that","/share/chatmy.html" },
+            {"setting","/share/setting.html" },
         };
         public wxDataController(TokenService token, ILog log, IDbConnection con, userCache uc)
         {

@@ -16,6 +16,7 @@ namespace WxPayAPI.lib
         * APPSECRET：公众帐号secert（仅JSAPI支付的时候需要配置），请妥善保管，避免密钥泄露
         * 
         * apiv3：63a9f0ea7bb98050796b649e85481845
+        * apikey:63a9f0ea7bb98050796b649e85481845
         */
 
         public string GetAppID(){
@@ -25,7 +26,7 @@ namespace WxPayAPI.lib
             return "1531926761";
         }
         public string GetKey(){
-            return "dc76e9f0c0006e8f919e0c515c66dbba";
+            return "63a9f0ea7bb98050796b649e85481845";
         }
         public string GetAppSecret(){
             return "38feb5333af037033c6939b3118fca0b";

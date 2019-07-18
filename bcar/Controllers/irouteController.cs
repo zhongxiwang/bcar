@@ -18,7 +18,7 @@ namespace bcar.Controllers
     [ApiController]
     [Produces("application/json")]
     [EnableCors("any")]
-    [Authentication]
+    //[Authentication]
     public class irouteController : ControllerBase
     {
         public IDbConnection db { get; set; }

@@ -188,11 +188,16 @@ namespace bcar.Controllers
         /// <param name="mobile"></param>
         [HttpGet]
         [Route("/mobile")]
-        public void mobile(string mobile)
+        public void mobile(string mobile="",string username="")
         {
             var id= HttpContext.Session.GetString("openid");
             JObject obj = new JObject();
-            obj.Add("mobile", mobile);
+            if (string.IsNullOrWhiteSpace(mobile) && string.IsNullOrWhiteSpace(username)) return;
+            if(!string.IsNullOrWhiteSpace(mobile))obj.Add("mobile", mobile);
+
+
+            if (!string.IsNullOrWhiteSpace(username)) obj.Add("username", username);
+            
             this.db.Execute(uiltT.Update(obj, "userinfo", "where wxCount='" + id+"'"));
         }
         /// <summary>

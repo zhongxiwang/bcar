@@ -54,7 +54,7 @@ namespace bcar.service
                     var reresult= Math.Round(p * prc, 2);
                     var nwobill = Math.Round(recommender.bill + reresult,2);
                     obj.Add("bill", nwobill);
-                    int result = this.db.Execute(uiltT.Update(obj, "userinfo", " where recommender='" + recommender.recommender+"'"));
+                    int result = this.db.Execute(uiltT.Update(obj, "userinfo", " where wxCount='" + recommender.recommender+"'"));
                     if (result != 1)
                     {
                         transaction.Rollback();

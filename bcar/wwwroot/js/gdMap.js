@@ -97,9 +97,39 @@ function IrouteName(startPoint, EndPoint,city) {
         ],function (status, result) {
             if (status === 'complete')
             {
-
+                console.log(result);
+                var price = 0;
+                $.ajax({
+                    url: "/api/LocationSite/getPrice?distance=" + result.routes[0].distance + "&type=4",
+                    async: false,
+                    success: function (data) {
+                        price = data;
+                        var distance = "0";
+                        if (result.routes[0].distance > 1000) distance = (result.routes[0].distance / 1000) + "千米";
+                        else distance = (result.routes[0].distance ) + "米";
+                        window.parent.$.confirm("全长" + distance + ",需要费用" + price + "元,是否创建订单？", function () {
+                            window.parent.dataset.rider = document.getElementById("mobile").value;
+                            window.parent.dataset.startingPoint = startPoint;
+                            window.parent.dataset.endingPoint = EndPoint;
+                            window.parent.dataset.price = price;
+                            //userinfo.targetLocation.price = price;
+                            window.parent.submit();
+                            search();
+                            //sub = true;
+                        });
+                    }
+                });
             } else {
-
+                console.log(result);
             }
+    });
+}
+
+function search() {
+    $.ajax({
+        url: "/api/DriverLocation/nearbydriver?lat=" + userinfo.currentInfo.location.lat + "&lng=" + userinfo.currentInfo.location.lng + "&id=" + window.parent.orderId,
+        success: function (data) {
+            //console.log(data);
+        }
     });
 }
