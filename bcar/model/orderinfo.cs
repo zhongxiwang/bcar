@@ -92,6 +92,14 @@ namespace bcar.model
         public string routeid { get; set; }
 
         public DateTime createTime { get;private set; }
+        /// <summary>
+        /// 经度
+        /// </summary>
+        public double longitude { get; set; }
+        /// <summary>
+        /// 纬度
+        /// </summary>
+        public double latitude { get; set; }
 
         public static implicit operator Hup.MessageBus.Request(orderinfo ts)
         {

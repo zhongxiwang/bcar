@@ -29,12 +29,13 @@ namespace bcar.Controllers
         Dictionary<string, string> list = new Dictionary<string, string>()
         {
             {"share","/share/Share.html" },
-            {"driver","/share/rect.html" },
+            {"driver","/index.html" },
             {"qrcode","/share/Ffens.html" },
             {"shagepage","/share/sharepage.html" },
             {"fm","/share/earnMoney.html" },
             {"xc","/share/myTrip.html" },
-            {"reg","/diriver/registerInfo.html" },
+            //{"reg","/diriver/registerInfo.html" },
+            {"reg","/index.html#/register/" },
             {"sleep","/diriver/sleep.html" },
             {"that","/share/chatmy.html" },
             {"setting","/share/setting.html" },
@@ -58,13 +59,17 @@ namespace bcar.Controllers
             webToken webtoken = new webToken(this.token.Secret, this.token.Coropid, code);
             string t = webtoken;
             HttpContext.Session.SetString("openid", webtoken.openid);
+            
             var n = this._db.QueryFirstOrDefault<userinfo>("select * from userinfo  where wxCount='" + webtoken.openid + "' ");
+            
             if (n == null)
             {
                 var usedata = WxUilt.Request.Get("https://api.weixin.qq.com/cgi-bin/user/info?access_token=" + this.token + "&openid=" + webtoken.openid + "&lang=zh_CN");
                 register(webtoken.openid);
             }
-            else if (id.Equals("driver"))
+            n = this._db.QueryFirstOrDefault<userinfo>("select * from userinfo  where wxCount='" + webtoken.openid + "' ");
+            HttpContext.Session.SetInt32("userid", n.id);
+            if (id.Equals("driver"))
             {
                 var driverstate = this._db.ExecuteScalar("select driverstate from userinfo LEFT JOIN driverinfo  on userinfo.id=driverinfo.userid where wxCount='" + webtoken.openid + "' ");
                 if (driverstate == null) id = "reg";

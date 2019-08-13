@@ -118,6 +118,7 @@ namespace bcar.Controllers
             obj.Add("bill", ui.bill.ToString());
             var res= this.db.Execute(uiltT.Update(obj, "userinfo", "where id=" + ui.id));
             this.HttpContext.Session.Remove("fee");
+            this.userc.rmove(openid);
             return res == 1 ? true : false;
         }
 

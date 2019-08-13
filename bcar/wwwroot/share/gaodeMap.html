@@ -10,7 +10,7 @@
     <link href="../sui/css/sm-extend.css" rel="stylesheet" />
     <link href="../css/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <script src="../js/jquery-1.11.2.min.js"></script>
-    <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 
     <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=3baf566fe06a95e2922d7de07c2d0411&plugin=AMap.Driving,AMap.Autocomplete"></script>
 
@@ -61,7 +61,10 @@
                     city = result.addressComponent.city;
                     address = result.formattedAddress;
                     document.getElementById("tipinput").value = address;
-                    document.getElementById("tipinput").value = city;
+                    document.getElementById("tipinput2").value = city;
+                    window.parent.dataset.latitude = result.position.lat;
+                    window.parent.dataset.longitude = result.position.lng;
+                    alert(JSON.stringify(result.position));
                 } else {
                     alert("定位出错，请刷新重试");
                 }
@@ -95,7 +98,8 @@
                     if (status == 'complete') {
                         city = result.addressComponent.city;
                         address = result.formattedAddress;
-
+                        //
+                        console.log(result);
                     } else {
                         alert("定位出错，请刷新重试");
                     }

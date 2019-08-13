@@ -171,7 +171,7 @@
                             <div class="item-media"><i class="icon icon-f7"></i></div>
                             <div class="item-inner">
                                 <div class="item-title">{{key.username}} {{key.formatTime}}</div>
-                                <div class="item-after">{{key.price}}</div>
+                                <div class="item-after">{{key.price.toFixed(2)}}</div>
                             </div>
                         </li>
                     </ul>
@@ -278,7 +278,7 @@
                         applyProxy();
                     });
                 } else {
-                    $.alert('您已经是代理商，将可以永久从您推广用户的收益或支持中提取部分收益。');
+                    $.alert('您已经是代理商，将可以永久从您推广用户的收益中提取部分收益。');
                 }
                 $.alert('<img width="160" src="' + databaseUserinfo.qrCode + '" />');
             }
@@ -290,7 +290,7 @@
                     $.ajax({
                         url: "/proxycost",
                         success: function (d) {
-                            $.confirm("成为代理商需要支付"+d+"元，请保持账号余额充足，是否继续？", function () {
+                            $.confirm("成为代理商需要支付" + d + "元，请保持账号余额充足，是否继续？", function () {
                                 $.ajax({
                                     url: "/proxy?wxcount=" + uilt_glob_openid,
                                     type: "GET",

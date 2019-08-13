@@ -45,7 +45,7 @@ namespace bcar.model
         /// <summary>
         /// 手机号码
         /// </summary>
-        public string moblie { get; set; }
+        public string mobile { get; set; }
 
         /// <summary>
         /// 身份证附件id

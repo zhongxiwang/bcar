@@ -87,10 +87,19 @@ namespace bcar.Controllers
         [HttpPost]
         [Route("SendMessage")]
         [Authentication]
-        public void SendMessage(string openid)
+        public void SendMessage(string openid, [FromBody]JObject obj)
         {
-            var message= this.Request.Form["message"];
+            var message = "";
+            try
+            {
+                message=this.Request.Form["message"];
+            }
+            catch
+            {
+                message = obj["message"].ToString();
+            }
             uilt.uiltT.SendWxMessage(this.token, message, openid);
         }
+
     }
 }

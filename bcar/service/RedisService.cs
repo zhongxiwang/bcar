@@ -143,7 +143,8 @@ namespace bcar.service
 
         public void delete(string key)
         {
-            this.Db.KeyDelete(key);
+             
+            if(key!=null&& this.Db.KeyExists(key)) this.Db.KeyDelete(key);
         }
 
         public void gq()

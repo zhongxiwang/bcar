@@ -111,7 +111,6 @@ function getWxInfo() {
  * 用户注册*/
 function registeruser()
 {
-
     $.ajax({
         url: "/api/Token/webtoken",
         type:"GET",
@@ -165,7 +164,6 @@ function isEmptOrNull(str) {
     if (str === "" || str === undefined || str == null)
         return true;
     return false;
-    
 }
 
 var databaseUserinfo = null;

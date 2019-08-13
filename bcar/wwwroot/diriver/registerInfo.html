@@ -46,7 +46,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">电话</label>
             <div class="layui-input-block">
-                <input type="text" v-model="moblie" lay-verify="required|phone" name="moblie" autocomplete="off" placeholder="电话" class="layui-input">
+                <input type="text" v-model="mobile" lay-verify="required|phone" name="moblie" autocomplete="off" placeholder="电话" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
@@ -172,7 +172,7 @@
             driveri.carType = "";
             driveri.seatNum = "4";
             driveri.carColor = "";
-            driveri.moblie = "";
+            driveri.mobile = "";
             driveri.idcard = "";
             if (tmp != null && tmp != undefined && tmp != "") {
                 $.ajax({

@@ -50,7 +50,7 @@ namespace bcar
                 options.AddPolicy("any",
                  builder =>
                  {
-                     builder.AllowAnyOrigin().AllowCredentials();
+                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                  });
             });
             services.AddSwaggerGen(options =>

@@ -8,7 +8,7 @@ create table driverinfo(
 	carType varchar(36) not null,
 	seatNum int not null,
 	carColor varchar(10) not null,
-	moblie varchar(11) ,
+	mobile varchar(11) ,
 	idcard varchar(16) not null,
 	driverlicense varchar(16) not null,
 	drivinglicense varchar(16) not null,
@@ -128,3 +128,10 @@ create table adminTable(
 	pwd varchar(64),
 	email varchar(64)
 );
+
+CREATE TABLE `locationInfo` (
+  `longitude` double(255,8) NOT NULL COMMENT '经度',
+  `latitude` double(255,8) NOT NULL COMMENT '纬度',
+  `orderid` varchar(16) NOT NULL,
+  PRIMARY KEY (`orderid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

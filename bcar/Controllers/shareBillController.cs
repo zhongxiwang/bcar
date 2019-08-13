@@ -39,8 +39,8 @@ namespace bcar.Controllers
         public IEnumerable<sharebill> getsy( )
         {
             var wxcount = HttpContext.Session.GetString("openid");
-            return this.db.Query<sharebill>("select * from sharebill where opertype <> '3' and username='"+wxcount+"'");
-            
+            var list= this.db.Query<sharebill>("select * from sharebill where opertype <> '3' and wxcount='" + wxcount+"'");
+            return list;
         }
 
         /// <summary>
@@ -53,7 +53,8 @@ namespace bcar.Controllers
         public IEnumerable<sharebill> gettx()
         {
             var wxcount = HttpContext.Session.GetString("openid");
-            return this.db.Query<sharebill>("select * from sharebill where opertype ='3' and username='" + wxcount + "'");
+            var list= this.db.Query<sharebill>("select * from sharebill where opertype ='3' and username='" + wxcount + "'");
+            return list;
         }
 
         /// <summary>
@@ -66,14 +67,14 @@ namespace bcar.Controllers
         public string proxy()
         {
             var wxcount = HttpContext.Session.GetString("openid");
-            bool result= this.cost.proxy(wxcount);
-            if (result)
+            var result= this.cost.proxy(wxcount);
+            if (string.IsNullOrEmpty(result))
             {
                 return "成功申请为代理商";
             }
             else
             {
-                return "申请失败，请确定账号金额充足";
+                return result;
             }
         }
 

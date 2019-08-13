@@ -36,7 +36,6 @@ namespace bcar.Controllers
             this.log = log;
         }
 
-
         // GET: api/LocationSite
         [HttpGet]
         public Result Get(string where = "", int limit = 10, int page = 0)
@@ -138,7 +137,7 @@ namespace bcar.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("getDistance")]
-        public double getDistance(locationSite[] dataset)
+        public double getDistance([FromBody]locationSite[] dataset)
         {
             try
             {
@@ -149,8 +148,10 @@ namespace bcar.Controllers
                     distance += double.Parse(key.nxdistance);
                 return distance;
             }
-            catch
+            catch(Exception e)
             {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(dataset));
                 return -1;
             }
         }
@@ -166,9 +167,10 @@ namespace bcar.Controllers
         public double getPrice(string distance,int type)
         {
             double distancen = 0;
-            if (distance[distance.Length - 1] == '米') distancen = 1;//double.Parse(distance.Substring(0, distance.Length - 1));
-            else if (distance[distance.Length - 1] == '里') distancen = double.Parse(distance.Substring(0, distance.Length - 2));
-            else distancen = double.Parse(distance);
+            //if (distance[distance.Length - 1] == '米') distancen = 1;//double.Parse(distance.Substring(0, distance.Length - 1));
+            //else if (distance[distance.Length - 1] == '里') distancen = double.Parse(distance.Substring(0, distance.Length - 2));
+            //else 
+            distancen = double.Parse(distance);
             if (type == 4) distancen = double.Parse(distance)/1000;
             try
             {

@@ -100,6 +100,28 @@ namespace bcar.Controllers
             return result;
         }
 
+        /// <summary>
+        /// 更新用户坐标
+        /// </summary>
+        /// <param name="lat"></param>
+        /// <param name="lon"></param>
+        [HttpGet]
+        [Route("upxy")]
+        public void upxy(double lat,double lon)
+        {
+            var openid = this.HttpContext.Session.GetString("openid");
+            var userid = this.HttpContext.Session.GetInt32("userid");
+            if (userid == null) return;
+            driverlocation dr = new driverlocation();
+            dr.pointx = lat;
+            dr.pointy = lon;
+            var n= this.idb.ExecuteScalar<int>("select count(1) from orders where driverid=" + userid + " and state=2 ")>0?0:1;
+            dr.status = n;
+            dr.content = "";
+            if (driverService.driverinfo.ContainsKey(openid))
+                driverService.driverinfo[openid] = dr;
+            else driverService.driverinfo.Add(openid, dr);
+        }
 
         // POST: api/DriverLocation
         [HttpPost]

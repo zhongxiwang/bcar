@@ -26,6 +26,8 @@ namespace bcar.model
             }
             catch(Exception e)
             {
+                var log= Startup.repository.GetLogger("res");
+                log.Log(typeof(Result), log4net.Core.Level.All, e.Message,e);
                 result.msg = e.Message;
                 if(result.code==1)
                 result.code = -1;

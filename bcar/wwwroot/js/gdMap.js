@@ -97,7 +97,6 @@ function IrouteName(startPoint, EndPoint,city) {
         ],function (status, result) {
             if (status === 'complete')
             {
-                console.log(result);
                 var price = 0;
                 $.ajax({
                     url: "/api/LocationSite/getPrice?distance=" + result.routes[0].distance + "&type=4",

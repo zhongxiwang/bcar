@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using bcar.model;
@@ -34,9 +35,18 @@ namespace bcar
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                            .UseKestrel(options =>//设置Kestrel服务器
+                            {
+                                options.Listen(IPAddress.Loopback, 5001, listenOptions =>
+                                {
+                                    //填入之前iis中生成的pfx文件路径和指定的密码　　　　　　　　　　　　
+                                    listenOptions.UseHttps(@"E:\bcar\bcar\2351339_www.pbaike.top.pfx", "Cfyqp3Rr");
+                                });
+                            });
+    
 
-        public static async Task<string> CorpPayAsync(int num)
+    public static async Task<string> CorpPayAsync(int num)
         {
             var openid = "oO8Kd1bx8pPV6dGkOI7KILsrmPLY";
             var f = (double)num / 100;

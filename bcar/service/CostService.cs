@@ -38,7 +38,7 @@ namespace bcar.service
         /// 计算成为代理商收益
         /// </summary>
         /// <param name="list"></param>
-        public bool proxy(string wxcount)
+        public string proxy(string wxcount)
         {
             var p= int.Parse(Config["proxycost"]);
             var user= this.uca.read(wxcount);
@@ -58,7 +58,7 @@ namespace bcar.service
                     if (result != 1)
                     {
                         transaction.Rollback();
-                        return false;
+                        return "出现了一个数据库中不存在的推荐人";
                     }
                 }
                 if (user.bill >= p)
@@ -71,15 +71,16 @@ namespace bcar.service
                     transaction.Commit();
                     this.uca.update(wxcount);
                     this.uca.update(user.recommender);
-                    return true;
+                    return "";
                 }else transaction.Rollback();
+                return "资金不足";
             }
             catch(Exception e)
             {
                 this.log.Error(e.Message);
                 transaction.Rollback();
+                return e.Message;
             }
-            return false;
         }
 
         /// <summary>

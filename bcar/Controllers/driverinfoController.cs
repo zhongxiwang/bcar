@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using bcar.service;
 using System.Net.Http;
 using bcar.Socket;
+using log4net;
 
 namespace bcar.Controllers
 {
@@ -32,15 +33,19 @@ namespace bcar.Controllers
         RedisService redis { get; set; }
 
         TokenService token { get; set; }
+        userCache _uc { get; set; }
+        ILog _log { get; set; }
         /// <summary>
         /// driver infomaction
         /// </summary>
         /// <param name="db"></param>
-        public driverinfoController(IDbConnection db,RedisService redis,TokenService token)
+        public driverinfoController(IDbConnection db, userCache uc, RedisService redis,TokenService token,ILog log)
         {
             this.db = db;
             this.redis = redis;
             this.token = token;
+            this._uc = uc;
+            this._log = log;
         }
         /// <summary>
         /// 获取全部司机信息
@@ -89,7 +94,26 @@ namespace bcar.Controllers
                 return null;
             }
         }
-
+        [HttpGet]
+        [Route("/currentDriverInfo")]
+        public driverinfo currentDriverInfo()
+        {
+            driverinfo result = null;
+            int id = this.HttpContext.Session.GetInt32("userid") ?? 0;
+            if (id == 0) return null;
+            try
+            {
+                result = this.redis.Read<driverinfo>(id.ToString());
+                if (result != null) return result;
+                result = db.QueryFirst<driverinfo>("select * from driverinfo where userid=" + id);
+                this.redis.Write<driverinfo>(id.ToString(), result);
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
         /// <summary>
         /// 创建用户信息
         /// </summary>
@@ -97,21 +121,31 @@ namespace bcar.Controllers
         [HttpPost]
         public void Post([FromBody] driverinfo value)
         {
-            var list = new string[]
+            Result.Run(key =>
             {
+                _log.Error(Newtonsoft.Json.JsonConvert.SerializeObject(value));
+                value.userid = HttpContext.Session.GetInt32("userid") ?? 0;
+                if (value.userid == 0) return;
+                var list = new string[]
+                {
                 value.idcard,
                 value.driverlicense,
                 value.carimage,
                 value.drivinglicense,
                 value.operationcertificate
-            };
-            var result= downloadImage(list);
-            value.idcard = result[0];
-            value.driverlicense = result[1];
-            value.carimage = result[2];
-            value.drivinglicense = result[3];
-            value.operationcertificate = result[4];
-            this.db.Execute(value.Insert());
+                };
+                var result = downloadImage(list);
+                value.idcard = result[0];
+                value.driverlicense = result[1];
+                value.carimage = result[2];
+                value.drivinglicense = result[3];
+                value.operationcertificate = result[4];
+                _log.Error(Newtonsoft.Json.JsonConvert.SerializeObject(result));
+                var sql= value.Insert();
+                _log.Error(Newtonsoft.Json.JsonConvert.SerializeObject(sql));
+                var n = this.db.Execute(sql); 
+            });
+
         }
 
         private string[] downloadImage(string[] serverid)
@@ -148,7 +182,7 @@ namespace bcar.Controllers
             catch (Exception e)
             {
                 trans.Rollback();
-                return null;
+                return new string[5];
             }
         }
 
@@ -160,8 +194,25 @@ namespace bcar.Controllers
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]JObject value)
         {
-            this.redis.delete(id.ToString());
+            var openid= HttpContext.Session.GetString("openid");
+            if(openid!=null)this.redis.delete(openid);
             this.db.Execute(uiltT.Update(value, "driverinfo", "where userid=" + id));
+        }
+
+        /// <summary>
+        /// 更新数据
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="val"></param>
+        [Route("putDriverInfo")]
+        [HttpGet]
+        public int putDriverInfo(string key,string val)
+        {
+            var openid = HttpContext.Session.GetString("openid");
+            var user = this._uc.read(openid);
+            this.redis.delete(openid);
+            
+            return this.db.Execute("update driverinfo set " + key + " ='" + val + "' where userid='" + user.id + "'");
         }
 
         /// <summary>

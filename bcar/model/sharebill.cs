@@ -13,7 +13,7 @@ namespace bcar.model
         /// <summary>
         /// 流水id
         /// </summary>
-        public int id { get; set; }
+        public string id { get; set; }
         /// <summary>
         /// 用户id
         /// </summary>
@@ -35,15 +35,21 @@ namespace bcar.model
         /// <summary>
         /// 费用
         /// </summary>
-        public int price { get; set; }
-        
+        public double price { get { return pr; } set { pr = Math.Round(value, 2, MidpointRounding.AwayFromZero); } }
+        double pr;
         /// <summary>
         /// 订单id
         /// </summary>
-        public int billid { get; set; }
+        public string billid { get; set; }
         /// <summary>
         /// 分享数据表,0 用户用车提取收益，1 司机收益提取，2 代理商收益提取，3 提现
         /// </summary>
         public int opertype { get; set; }
+
+        public string Insert()
+        {
+            string str = "insert into sharebill(userid,wxcount,username,price,billid,opertype)values(@userid,@wxcount,@username,@price,@billid,@opertype)";
+            return str;
+        }
     }
 }
